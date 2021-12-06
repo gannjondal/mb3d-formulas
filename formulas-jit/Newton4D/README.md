@@ -1,5 +1,5 @@
 # Recent JIT formulas around the implementation of the 4D Newton bulb   
-For compatibility to older examples in dA, and ff.org all older formulas are available in [this folder:](/published-samples/fforg-da-3dnewton/)   
+For compatibility to older examples in dA, and ff.org all older formulas are available in this folder:  [/published-samples/fforg-da-3dnewton/](/published-samples/fforg-da-3dnewton/)   
    
 ## Current references:   
 - FF org - Revisiting the 3D Newton (original introduction of the principle):   
@@ -15,10 +15,10 @@ For compatibility to older examples in dA, and ff.org all older formulas are ava
 - `QuatPowNNewt` = (4D) Newton fractal formula using quaternion numbers, and a free power parameter of type floating point   
 - `_01, _02 etc` The logic behind fractal formulas makes it not that easy (well, for me) to ensure backward compatibility.   
    I will try to keep an eye to that topic in future, so that there will not be too many of those \_xy variants.   
-   Also there is not (and will not be) any formula `packages` that may have an own versioning.   
-   Finally MB3D requires relatively short formula names (<16 characters) only, so that it's not possible to have something like subversioning like \_01_01 in the most cases.   
+   Also there is not (and will not be) any formula packages that may have an own versioning.   
+   Finally MB3D requires relatively short formula names (something like <24 characters; I don't recall exactly) only, so that it's not possible to have something like subversioning like \_01_01 in the most cases.   
    Hence please consider that you may not be able to use a \_02 variant within params originally written with a \_01 of the same type   
-- `E` stands for "easy to use":  It is for z^n-`1`=0 only, and uses `1` as the only fix solution.   
+- `E` stands for "easy to use":  It is for z^n-`1`=0 only, and uses `1` as the one-and-only fix solution.   
   There will be versions with a configurable solution parameter (good for pre-transformations only) published later.   
 - `C` stands for "correct multiplication of c".   
   In earlier versions of MB3D JIT formulas I did not take the effort to correctly multiply c.   
