@@ -1,0 +1,48 @@
+[OPTIONS]
+.DEScale = 1
+.SIPow = 2
+.Version = 9
+.Double a = 1
+.Double b = 1
+.Double c = 1
+[SOURCE]
+procedure MyFormula(var x, y, z, w: Double; PIteration3D: TPIteration3D);
+
+var
+   x_tmp, y_tmp, z_tmp: double;
+   cx, cy, cz: double;
+
+begin
+   // cx, cy, and cz do define the contant values 
+   // according the c param in z^n+c in common Mandelbrot/Julia set
+   // MB3D will take care to set this value if defined as below
+   
+   cx := PIteration3D^.J1; 
+   cy := PIteration3D^.J2;
+   cz := PIteration3D^.J3;
+ 
+   // x, y, and z must be used for the iterated parameters. 
+   // You don't need to initialize them by hand etc.
+   
+   x_tmp := x*x - a*y*z;
+   y_tmp := y*y + z*z - b*z*x;
+   z_tmp := z*z +  c*x*y;
+
+   x := x_tmp + cx;
+   y := y_tmp + cy;
+   z := z_tmp + cz;
+end;
+[END]
+This is "my" first formula, used for the formula editor tutorial.
+
+For a first try to increase the a, and b values to values between 1, and 2.5
+
+The formula looks like this:
+
+   x_tmp := x*x - a*y*z;
+   y_tmp := y*y + z*z - b*z*x;
+   z_tmp := z*z +  c*x*y;
+
+   x := x_tmp + cx;
+   y := y_tmp + cy;
+   z := z_tmp + cz;

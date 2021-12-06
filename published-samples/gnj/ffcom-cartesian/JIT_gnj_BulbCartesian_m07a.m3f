@@ -1,0 +1,130 @@
+[OPTIONS]
+.DEScale = 1
+.SIPow = 2
+.Version = 9
+.Double Var01 = 0
+.Double Var02 = 0
+.Double Var03 = 0
+.Double Var04 = 0
+.Double Var05 = 0
+.Double Var06 = 0
+.Double Var07 = 0
+.Double Var08 = 0
+.Double Var09 = 0
+.Double Var10 = 0
+.Double Var11 = 0
+.Double Var12 = 0
+.Double Var13 = 0
+.Double Var14 = 0
+.Double Var15 = 0
+
+[SOURCE]
+procedure MyFormula(var x, y, z, w: Double; PIteration3D: TPIteration3D);
+
+var
+   rxy, sq_rxy, qu_rxy: double;
+   x_tmp, y_tmp, z_tmp: double;
+   rho1, rho2: double;
+   tmp, tmp1: double;
+   sq_x, sq_y, sq_z: double; 
+   qu_x, qu_y, qu_z: double; 
+   hx_x, hx_y, hx_z: double; 
+   cx, cy, cz: double;
+
+begin
+
+// set c
+   cx := PIteration3D^.J1;
+   cy := PIteration3D^.J2;
+   cz := PIteration3D^.J3;
+  
+// calculating helper variables
+   sq_x := x*x;
+   sq_y := y*y;
+   sq_z := z*z;
+
+   sq_rxy := sq_x + sq_y;
+   rxy := sqrt(sq_rxy);
+   qu_rxy := sq_rxy*sq_rxy;
+   
+   qu_x := sq_x*sq_x;
+   qu_y := sq_y*sq_y;
+   qu_z := sq_z*sq_z;
+   
+   hx_x := qu_x*sq_x;
+   hx_y := qu_y*sq_y;
+   hx_z := qu_z*sq_z;
+   
+   tmp1 := (1 + Var01)*(sq_z + Var12)*(sq_rxy + Var13) + Var02*z*sq_z + Var03*rxy*sq_rxy + Var04*sq_z*rxy + Var05*(z + Var14)*(sq_rxy + Var15) + Var06*sq_z + Var07*sq_rxy + Var08*z*rxy + Var09*z + Var10*rxy + Var11;
+   tmp := 1 + (qu_z*qu_z - 28*qu_z*tmp1 + 70*tmp1*tmp1 - 28*tmp1*qu_rxy)/(qu_rxy*qu_rxy);
+   
+//calculate the power   
+   x_tmp := tmp*(qu_x*qu_x - 28*hx_x*sq_y + 70*qu_x*qu_y - 28*sq_x*hx_y + qu_y*qu_y);
+   y_tmp := 8*tmp*x*y*(hx_x - 7*qu_x*sq_y + 7*sq_x*qu_y - hx_y);
+   z_tmp := 8*z*rxy*(sq_z-sq_rxy)*(qu_z - 6*tmp1 + qu_rxy);
+   
+//set x, y, and z
+   x := x_tmp + cx;
+   y := y_tmp + cy;
+   z := z_tmp + cz;
+   
+end;
+[END]
+SUMMARY:
+General calculation:
+ Common (= negative sine) power 8 bulb, pure cartesian calculation.
+ t(n+1) = t(n)^8 + c
+
+where 
+* t:=(x,y,z) in cartesian coordinates
+* c:=(cx,cy,cz) in cartesian coordinates
+
+CHANGES:
+- JIT_gnj_BulbCartesian_02.m3f
+  Some optimizations on the used helper terms, and power calculation
+- JIT_gnj_BulbCartesian_m07.m3f: 
+  Mutation:  Extraxct an often osed term (sq_z*sq_rxy), and mutate that term systematically
+- JIT_gnj_BulbCartesian_m07a.m3f: 
+  Mutation:  Added some more switches (Var12 - Var15) to allow some easier combination changes
+
+FORMULA:
+
+// set c
+   cx := PIteration3D^.J1;
+   cy := PIteration3D^.J2;
+   cz := PIteration3D^.J3;
+  
+// calculating helper variables
+   sq_x := x*x;
+   sq_y := y*y;
+   sq_z := z*z;
+
+   sq_rxy := sq_x + sq_y;
+   rxy := sqrt(sq_rxy);
+   qu_rxy := sq_rxy*sq_rxy;
+   
+   qu_x := sq_x*sq_x;
+   qu_y := sq_y*sq_y;
+   qu_z := sq_z*sq_z;
+   
+   hx_x := qu_x*sq_x;
+   hx_y := qu_y*sq_y;
+   hx_z := qu_z*sq_z;
+   
+   tmp1 := (1 + Var01)*(sq_z + Var12)*(sq_rxy + Var13) + Var02*z*sq_z + Var03*rxy*sq_rxy + Var04*sq_z*rxy + Var05*(z + Var14)*(sq_rxy + Var15) + Var06*sq_z + Var07*sq_rxy + Var08*z*rxy + Var09*z + Var10*rxy + Var11;
+   tmp := 1 + (qu_z*qu_z - 28*qu_z*tmp1 + 70*tmp1*tmp1 - 28*tmp1*qu_rxy)/(qu_rxy*qu_rxy);
+   
+//calculate the power   
+   x_tmp := tmp*(qu_x*qu_x - 28*hx_x*sq_y + 70*qu_x*qu_y - 28*sq_x*hx_y + qu_y*qu_y);
+   y_tmp := 8*tmp*x*y*(hx_x - 7*qu_x*sq_y + 7*sq_x*qu_y - hx_y);
+   z_tmp := 8*z*rxy*(sq_z-sq_rxy)*(qu_z - 6*sq_z*sq_rxy + qu_rxy);
+   
+//set x, y, and z
+   x := x_tmp + cx;
+   y := y_tmp + cy;
+   z := z_tmp + cz;
+   
+//set x, y, and z
+   x := x_tmp + cx;
+   y := y_tmp + cy;
+   z := z_tmp + cz;

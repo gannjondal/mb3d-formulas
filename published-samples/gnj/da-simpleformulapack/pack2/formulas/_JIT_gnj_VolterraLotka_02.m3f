@@ -1,0 +1,43 @@
+[OPTIONS]
+.DEOption = -1
+.DEScale = 1
+.SIPow = 2
+.Version = 9
+.Double a = 0
+.Double b = 0
+.Double c = 0
+.Double delta = 0.01
+[SOURCE]
+procedure MyFormula(var x, y, z, w: Double; PIteration3D: TPIteration3D);
+
+var
+   x_tmp, y_tmp, z_tmp: double;
+   cx, cy, cz: double;
+begin
+   cx := PIteration3D^.J1;
+   cy := PIteration3D^.J2;
+   cz := PIteration3D^.J3;
+
+   x_tmp := x + delta*(x - x*y + cz*x*x - cx*z*x*x);
+   y_tmp := y + delta*(-y + x*y);
+   z_tmp := z + delta*(-cy*z + cx*z*x*x);
+
+   x := x_tmp + a;
+   y := y_tmp + b;
+   z := z_tmp + c;
+end;
+[END]
+Volterra-Lotka attractor
+Variant 2:
+ - Pre-factors are changing through the picture (Julia/Mandel constants used)
+ - For each dimension a fix value is added
+
+delta is equivalent to the time step (delta t) as the original equation is a differential equation
+
+   x_tmp := x + delta*(x - x*y + cz*x*x - cx*z*x*x);
+   y_tmp := y + delta*(-y + x*y);
+   z_tmp := z + delta*(-cy*z + cx*z*x*x);
+
+   x := x_tmp + a;
+   y := y_tmp + b;
+   z := z_tmp + c;

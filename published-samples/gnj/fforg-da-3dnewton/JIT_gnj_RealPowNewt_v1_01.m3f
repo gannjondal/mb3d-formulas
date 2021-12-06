@@ -1,0 +1,223 @@
+[OPTIONS]
+.DEScale = 1
+.RStop = 4
+.SIPow = 2
+.Version = 9
+.Double Fake_Bailout = 1
+.Double Phi_add = 0.0
+.Double Phi_fac = 1.0
+.Double Power_ = 3
+.Double R_add = 0.0
+.Double R_fac = 1.0
+.Double R_min = 0.0
+.Double Solution_x = 1
+.Double Solution_y = 0
+.Double Solution_z = 0
+.Double Theta_add = 0.0
+.Double Theta_fac = 1.0
+[CONSTANTS]
+.Double offset = 1E-10
+[SOURCE]
+procedure MyFormula(var x, y, z, w: Double; PIteration3D: TPIteration3D);
+
+var
+   sq_r: double;
+   r, theta, phi: double;
+   r_pow, theta_pow, phi_pow: double;
+   cx, cy, cz: double;
+   pow_eff, fac_eff: double;
+   sph, sth, cph, cth: double;
+   diffx, diffy, diffz: double;
+   r_norm, rd: double;
+
+begin
+
+// Preparation operations
+   pow_eff := 1 - Power_;
+   fac_eff := (Power_ - 1)/Power_;
+
+   cx := PIteration3D^.J1;
+   cy := PIteration3D^.J2;
+   cz := PIteration3D^.J3;
+
+// Converting the diverging (x,y,z) back to the variable
+// that can be used for the (converging) Newton method calculation
+   sq_r := Fake_Bailout/(x*x + y*y + z*z + Offset);
+   x := x*sq_r + Solution_x;
+   y := -y*sq_r + Solution_y;
+   z := -z*sq_r + Solution_z;
+
+// Calculate the inverse power of t=(x,y,z),
+// and use it for the Newton method calculations for t^power + c = 0
+// i.e. t(n+1) = (power-1)*t(n)/power - c/power*t(n)^(power-1)
+   sq_r := x*x + y*y + z*z;
+   r := R_fac*sqrt(sq_r) + R_add;
+
+   phi := Phi_fac*ArcSin(z/r) + Phi_add ;
+   theta := Theta_fac*ArcTan2(y,x) + Theta_add;
+
+   r_pow:= power(r, pow_eff);
+   phi_pow := phi*pow_eff;
+   theta_pow := theta*pow_eff;
+
+   SinCos(theta_pow, sth, cth);
+   SinCos(phi_pow, sph, cph);
+
+   r_norm := r_pow/Power_ ;
+
+   x := fac_eff*x - cx*cph*cth*r_norm ;
+   y := fac_eff*y - cy*cph*sth*r_norm ;
+   z := fac_eff*z + cz*sph*r_norm ;
+
+   rd := R_min*R_min;
+   if sq_r < rd then
+   begin
+     x := x/sq_r;
+     y := -y/sq_r;
+     z := -z/sq_r;
+   end;
+   
+// Below the hack that provides a divergent value of (x,y,z) to MB3D
+// although the plain Newton method does always converge
+   diffx := (x-Solution_x);
+   diffy := (y-Solution_y);
+   diffz := (z-Solution_z);
+
+   sq_r := diffx*diffx + diffy*diffy + diffz*diffz + Offset;
+   sq_r := Fake_Bailout/sq_r;
+   x := diffx*sq_r;
+   y := -diffy*sq_r;
+   z := -diffz*sq_r;
+
+end;
+[END]
+SUMMARY:
+ 3D Newton made from the bulb formula.
+ Normal triplex algebra where
+ 1/q^n ":=" q^(-n)
+ 
+ JIT_gnj_RealPowNewt_v1_01.m3f:
+ Variant 01 - Mutation of basis params 
+   of the radial co-ordinates.
+   All params from the work formula
+   are taken over here.   
+   
+BASE:  JIT_gnj_RealPowNewtonS_1.m3f
+WORK FORMULA:  WRK_RealPowNewtonS_m01_01.m3f
+
+CHANGES:
+
+PARAMETERS:
+ Solution_x/y/z:
+   Default = (1,0,0)
+   The calculated, or guessed target
+   solution for the Newton method that
+   is taken as the fractal's outside
+   
+ Power_:
+   Default = 3
+   The power of the polynom 
+    (x,y,z)^power - c = 0
+   to be solved
+   
+ Fake_Bailout:
+   Default = 1
+   Normally you should leave it at 1.
+   BE CAREFUL, it can lead to strange
+   effects!
+   However, e.g. in some hybrids it
+   is necessary to increase the value
+   of 'R Bailout' on the formula
+   window to avoid unwanted cuts.
+   In this case you may set
+   Fake_Bailout to 'R bailout'/4 as a
+   start value.
+   ATTENTION:  Changing this value
+   scales the complete object.
+   You may use the _Scaling transfrom
+   on 3Da tab as a pretransform to
+   scale the object back.
+
+ Phi_add:
+  Default = 0.0
+  
+ Phi_fac:
+  Default = 1.0
+  
+ R_add:
+  Default = 0.0
+  
+ R_fac
+  Default = 1.0
+  
+ R_min:
+  Default = 0.0
+  -> Contitional inverse after calculation of x,y,z
+     (inverse if r*r < R_min*R_min; i.e. Abox style)
+	 NOTE:  As of now the r from BEFORE the calculation 
+            of the new x, y, z is taken	 
+  
+ Theta_add:
+  Default = 0.0
+  
+ Theta_fac
+  Default = 1.0
+   
+FORMULA:
+// Preparation operations
+   pow_eff := 1 - Power_;
+   fac_eff := (Power_ - 1)/Power_;
+
+   cx := PIteration3D^.J1;
+   cy := PIteration3D^.J2;
+   cz := PIteration3D^.J3;
+
+// Converting the diverging (x,y,z) back to the variable
+// that can be used for the (converging) Newton method calculation
+   sq_r := Fake_Bailout/(x*x + y*y + z*z + Offset);
+   x := x*sq_r + Solution_x;
+   y := -y*sq_r + Solution_y;
+   z := -z*sq_r + Solution_z;
+
+// Calculate the inverse power of t=(x,y,z),
+// and use it for the Newton method calculations for t^power + c = 0
+// i.e. t(n+1) = (power-1)*t(n)/power - c/power*t(n)^(power-1)
+   sq_r := x*x + y*y + z*z;
+   r := R_fac*sqrt(sq_r) + R_add;
+
+   phi := Phi_fac*ArcSin(z/r) + Phi_add ;
+   theta := Theta_fac*ArcTan2(y,x) + Theta_add;
+
+   r_pow:= power(r, pow_eff);
+   phi_pow := phi*pow_eff;
+   theta_pow := theta*pow_eff;
+
+   SinCos(theta_pow, sth, cth);
+   SinCos(phi_pow, sph, cph);
+
+   r_norm := r_pow/Power_ ;
+
+   x := fac_eff*x - cx*cph*cth*r_norm ;
+   y := fac_eff*y - cy*cph*sth*r_norm ;
+   z := fac_eff*z + cz*sph*r_norm ;
+
+   rd := R_min*R_min;
+   if sq_r < rd then
+   begin
+     x := x/sq_r;
+     y := -y/sq_r;
+     z := -z/sq_r;
+   end;
+   
+// Below the hack that provides a divergent value of (x,y,z) to MB3D
+// although the plain Newton method does always converge
+   diffx := (x-Solution_x);
+   diffy := (y-Solution_y);
+   diffz := (z-Solution_z);
+
+   sq_r := diffx*diffx + diffy*diffy + diffz*diffz + Offset;
+   sq_r := Fake_Bailout/sq_r;
+   x := diffx*sq_r;
+   y := -diffy*sq_r;
+   z := -diffz*sq_r;
+

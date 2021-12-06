@@ -1,0 +1,20 @@
+jit001 - JIT_IQBulb_m01
+jit002 - _JIT_gnj_TSimp_Newt3_03 , Integer Power
+jit003 - JIT_gnj_RealPower_m02_01 , Folding Int Pow
+jit004 - JIT_gnj_RealPower_m02_01 , MengerIFS
+jit005 - JIT_gnj_Tutorial1_01 , _reciprocalZ3b , _RotateC
+jit006 - JIT_gnj_RealPowerPseuNewt3_02
+jit007 - JIT_gnj_RealPowerPseuNewt2_02 , Real Power
+jit008 - JIT_gnj_RealPowerPseuNewt2_02 , JIT_gnj_TSimp_Sqr02
+jit009 - JIT_gnj_RealPowerPseuNewt3_02
+jit010 - JIT_gnj_RealPowerPseuNewt3_02
+jit011 - JIT_gnj_AddRecip_02 , Real Power
+jit012 - JIT_gnj_AddRecip_02 , Real Power
+jit013 - JIT_gnj_RealPowerPseuNewt3_02 , MsltoeFoldQuat
+jit014 - JIT_gnj_RealPowerPseuNewt3_02 , MengerIFS , AmazingBox2
+jit015 - JIT_gnj_RealPowerPseuNewt3_02 , MengerIFS , AmazingBox2
+jit016 - JIT_gnj_RealPowerPseuNewt3_02 , MengerIFS , AmazingBox2
+jit017 - JIT_gnj_RealPowerPseuNewt3_02 , MengerIFS , AmazingBox2
+jit018 - MengerIFS , _JIT_gnj_PseuLog_03 , Integer Power
+jit019 - MengerIFS , _JIT_gnj_PseuLog_03 , Integer Power , FoldingTetra3d
+jit020 - JIT_gnj_RealPowerPseuNewt3_02 , Riemann2

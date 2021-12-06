@@ -1,0 +1,57 @@
+[OPTIONS]
+.DEOption = -1
+.DEScale = 1
+.SIPow = 2
+.Version = 9
+.Double Factor = 1
+.Double Shift_r = 0
+[SOURCE]
+procedure MyFormula(var x, y, z, w: Double; PIteration3D: TPIteration3D);
+
+var
+   sq_r: double;
+   r, theta, phi: double;
+   cx, cy, cz: double;
+   
+   x_eff, y_eff: double;
+
+begin
+   cx := PIteration3D^.J1;
+   cy := PIteration3D^.J2;
+   cz := PIteration3D^.J3;
+  
+   sq_r := x*x + y*y + z*z + Shift_r;
+   r := sqrt(sq_r);
+   
+   phi := ArcSin(z/r) ;
+   theta := ArcTan2(y,x) ;
+
+   x := LnXP1(r) + cx;
+   y := theta*Factor + cy;
+   z := phi*Factor + cz;
+end;
+[END]
+SUMMARY:
+Pseudo Logarithm "extension" from complex logarithm (as if theta and phi can be handled the same way)
+
+HINT: 
+  Use this together with bulb type formulas.
+
+CHANGES:
+_JIT_gnj_PseuLog_03.m3f:
+  Added Shift_r variable. 
+  Only positive values are somehow useful
+
+_JIT_gnj_PseuLog_02.m3f:  
+  Moved to Adds section
+
+FORMULA:
+   sq_r := x*x+y*y+z*z;
+   r := sqrt(sq_r);
+
+   phi := ArcSin(z/r) ;
+   theta := ArcTan2(y,x) ;
+
+   x := LnXP1(r) + cx;
+   y := theta*Factor + cy;
+   z := phi*Factor + cz;

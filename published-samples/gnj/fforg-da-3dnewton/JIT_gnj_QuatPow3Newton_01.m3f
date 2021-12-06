@@ -1,0 +1,160 @@
+[OPTIONS]
+.DEoption = 4
+.DEScale = 1
+.RStop = 4
+.SIPow = 2
+.Version = 9
+.Double Fake_Bailout = 1
+.Double Solution_w = 0
+.Double Solution_x = 1
+.Double Solution_y = 0
+.Double Solution_z = 0
+.Double W_Add = 0
+[CONSTANTS]
+.Double fac_eff = 0.6666666666
+.Double offset = 1E-10
+[SOURCE]
+procedure MyFormula(var x, y, z, w: Double; PIteration3D: TPIteration3D);
+
+var
+   sq_r: double;
+   cx, cy, cz, cw: double;
+   diffx, diffy, diffz, diffw: double;
+   tmpx, tmpy, tmpz, tmpw: double;
+
+begin
+
+// Preparation operations
+   cx := PIteration3D^.J1;
+   cy := PIteration3D^.J2;
+   cz := PIteration3D^.J3;
+   cw := W_Add;
+   
+// Converting the diverging (x,y,z) back to the variable
+// that can be used for the (converging) Newton method calculation
+   sq_r := Fake_Bailout/(x*x + y*y + z*z + w*w + Offset);
+   x := x*sq_r + Solution_x;
+   y := -y*sq_r + Solution_y;
+   z := -z*sq_r + Solution_z;
+   w := -w*sq_r + Solution_w;
+
+// Calculate the inverse power of t=(x,y,z),
+// and use it for the Newton method calculations for t^power + c = 0
+// i.e. t(n+1) = 2*t(n)/3 - c/2*t(n)^2
+   
+   tmpx := x*x - y*y - z*z - w*w;
+   tmpy := 2*x*y;
+   tmpz := 2*x*z;
+   tmpw := 2*x*w;
+   
+   sq_r := tmpx*tmpx + tmpy*tmpy + tmpz*tmpz + tmpw*tmpw;
+   sq_r := 1/(3*sq_r + offset);
+
+   x := fac_eff*x - cx*tmpx*sq_r;
+   y := fac_eff*y + cy*tmpy*sq_r;
+   z := fac_eff*z + cz*tmpz*sq_r;
+   w := fac_eff*w + cw*tmpw*sq_r;
+
+// Below the hack that provides a divergent value of (x,y,z) to MB3D
+// although the plain Newton method does always converge
+   diffx := (x - Solution_x);
+   diffy := (y - Solution_y);
+   diffz := (z - Solution_z);
+   diffw := (w - Solution_w);
+
+   sq_r := Fake_Bailout/(diffx*diffx + diffy*diffy + diffz*diffz + Offset);
+   x := diffx*sq_r;
+   y := -diffy*sq_r;
+   z := -diffz*sq_r;
+   w := -diffw*sq_r;
+
+end;
+[END]
+SUMMARY:
+ 3D Newton made from the bulb formula.
+ This one is with cartesian 
+ co-ordinates, and thus for pow 3
+ only.
+ Normal triplex algebra where
+ 1/q^n ":=" q^(-n)
+
+CHANGES:
+ Basis:  JIT_gnj_RealPowNewtonS_1.m3f
+
+ JIT_gnj_Pow3Newton_01.m3f
+   Changed from real power (sphere
+   co-ordinate) calculation to 
+   cartesian coordinates, which is of
+   course faster.
+   This version delivers only pictures
+   for z^3 - c = 0
+
+PARAMETERS:
+ Solution_x/y/z:
+   Default = (1,0,0)
+   The calculated, or guessed target
+   solution for the Newton method that
+   is taken as the fractal's outside
+   
+ Fake_Bailout:
+   Default = 1
+   Normally you should leave it at 1.
+   BE CAREFUL, it can lead to strange
+   effects!
+   However, e.g. in some hybrids it
+   is necessary to increase the value
+   of 'R Bailout' on the formula
+   window to avoid unwanted cuts.
+   In this case you may set
+   Fake_Bailout to 'R bailout'/4 as a
+   start value.
+   ATTENTION:  Changing this value
+   scales the complete object.
+   You may use the _Scaling transfrom
+   on 3Da tab as a pretransform to
+   scale the object back.
+
+FORMULA:
+// Preparation operations
+   cx := PIteration3D^.J1;
+   cy := PIteration3D^.J2;
+   cz := PIteration3D^.J3;
+
+// Converting the diverging (x,y,z) back to the variable
+// that can be used for the (converging) Newton method calculation
+   sq_r := Fake_Bailout/(x*x + y*y + z*z + Offset);
+   x := x*sq_r + Solution_x;
+   y := -y*sq_r + Solution_y;
+   z := -z*sq_r + Solution_z;
+   
+   x2 := x*x;
+   y2 := y*y;
+   z2 := z*z;
+
+// Calculate the inverse power of t=(x,y,z),
+// and use it for the Newton method calculations for t^power + c = 0
+// i.e. t(n+1) = 2*t(n)/3 - c/2*t(n)^2
+   sq_r := x2 + y2 + z2;
+   sq_r := 1/(3*sq_r*sq_r + offset);
+   r_xy := x2 + y2;
+   h1 := 1 - z2/r_xy;
+   
+   tmpx := h1*(x2-y2)*sq_r;
+   tmpy := -2*h1*x*y*sq_r;
+   tmpz := 2*z*sqrt(r_xy)*sq_r;
+
+   x := fac_eff*x - cx*tmpx;
+   y := fac_eff*y - cy*tmpy;
+   z := fac_eff*z - cz*tmpz;
+
+// Below the hack that provides a divergent value of (x,y,z) to MB3D
+// although the plain Newton method does always converge
+   diffx := (x - Solution_x);
+   diffy := (y - Solution_y);
+   diffz := (z - Solution_z);
+
+   sq_r := Fake_Bailout/(diffx*diffx + diffy*diffy + diffz*diffz + Offset);
+   x := diffx*sq_r;
+   y := -diffy*sq_r;
+   z := -diffz*sq_r;
+

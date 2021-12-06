@@ -1,0 +1,28 @@
+jit021 - JIT_gnj_TSimp_Newt3_03 , ABoxPlatinumB , Integer Power
+jit022 - MengerIFS , JIT_gnj_RealPowerPseuNewt3_02
+jit023 - JIT_IQBulb_m01 , JIT_IQBulb_m01
+jit024 - _JIT_gnj_AddRecip_01 , Folding Int Pow , JIT_AmazingSquare_02
+jit025 - JIT_gnj_TSimp_Newt3_02 , Folding Int Pow , JIT_gnj_ASquare_01
+jit026 - JIT_AmazingSquare_02 , genIFS
+jit027 - genIFS , JIT_gnj_RealPowerPseuNewt3_02, genIFS
+jit028 - TgladDihed , JIT_gnj_RealPowerPseuNewt3_02
+jit029 - JIT_gnj_RealPowerPseuNewt3_02 , TgladDihed , JIT_gnj_RealPowerPseuNewt3_02
+jit030 - _JIT_gnj_AddRecip_01 , TgladDihed2
+jit031 - _Rotate , JIT_gnj_AddRecip_02 , _RotateBack , ABoxSmoothFold
+jit032 - _Rotate , JIT_gnj_AddRecip_02 , _RotateBack , ABoxSmoothFold
+jit033 - _JIT_gnj_RiemPow2_04 , Integer Power
+jit034 - _JIT_gnj_RiemPow2_04 , Integer Power
+jit035 - _JIT_gnj_RiemPow2_04 , Integer Power
+jit036 - _JIT_gnj_RiemPow2_04 , Integer Power
+jit037 - Integer Power , _JIT_gnj_RiemPow2_04
+jit038 - Integer Power , _JIT_gnj_RiemPow2_04
+jit039 - _JIT_gnj_RiemPow2_04 , PseudoXDB
+jit040 - Integer Power , _JIT_gnj_RiemPow2_04
+jit041 - JIT_gnj_RiemPow2_05 , MengerIFS
+jit042 - _JIT_gnj_RiemSimpleTrans_01 , Integer Power
+jit043 - _JIT_gnj_RiemSimple_01 , Integer Power
+jit044 - _JIT_gnj_RiemSimpleTrans_01 , MengerIFS
+jit045 - _JIT_gnj_RiemSimpleTrans_01 , MengerIFS
+jit046 - _JIT_gnj_AddRecip_01 , MengerIFS
+jit047 - JIT_gnj_TwoRealPower_02
+jit048 - JIT_gnj_TwoRealPower_02

@@ -1,0 +1,254 @@
+[OPTIONS]
+.DEScale = 1
+.RStop = 4
+.SIPow = 2
+.Version = 9
+
+.Double DoFirstInversion = 1
+.Double Fake_Bailout = 1.0
+.Double FirstIteration = 1
+.Double Inversion_x = 1.0
+.Double Inversion_y = 0.0
+.Double Inversion_z = 0.0
+.Double Offset = 1.0e-10
+.Double Power_ = 3
+.Double PreShift_x = 0.0
+.Double PreShift_y = 0.0
+.Double PreShift_z = 0.0
+.Double Solution_x = 1.0
+.Double Solution_y = 0.0
+.Double Solution_z = 0.0
+[SOURCE]
+procedure MyFormula(var x, y, z, w: Double; PIteration3D: TPIteration3D);
+
+var
+   sq_r: double;
+   r, theta, phi: double;
+   r_pow, theta_pow, phi_pow: double;
+   cx, cy, cz: double;
+   pow_eff, fac_eff: double;
+   sph, sth, cph, cth: double;
+   diffx, diffy, diffz: double;
+   r_norm: double;
+   iter1: double;
+
+begin
+// Preparation operations
+   pow_eff := 1 - Power_;
+   fac_eff := (Power_ - 1)/Power_;
+
+   cx := PIteration3D^.J1;
+   cy := PIteration3D^.J2;
+   cz := PIteration3D^.J3;
+
+   iter1 := PIteration3D^.bFirstIt;
+
+   x := x + PreShift_x;
+   y := y + PreShift_y;
+   z := z + PreShift_z;
+
+   If DoFirstInversion = 0 then // Don't calculate first inversion
+     begin
+	   sq_r := Fake_Bailout/(x*x + y*y + z*z + Offset);
+       If iter1 >= FirstIteration then
+ 	     begin
+           x := x*sq_r + Solution_x;
+           y := -y*sq_r + Solution_y;
+           z := -z*sq_r + Solution_z;
+		 end;
+     end
+	 
+   else if DoFirstInversion = 1 then // Do first inversion with separate parameters
+     begin
+	   sq_r := 1/(x*x + y*y + z*z + Offset);
+       If iter1 < FirstIteration then
+         begin
+           x := x*sq_r + Inversion_x;
+           y := -y*sq_r + Inversion_y;
+           z := -z*sq_r + Inversion_z;
+         end
+       else
+	     begin
+           x := Fake_Bailout*x*sq_r + Solution_x;
+           y := -Fake_Bailout*y*sq_r + Solution_y;
+           z := -Fake_Bailout*z*sq_r + Solution_z;
+		 end;
+     end
+
+   else // if DoFirstInversion = 2 then // Do first inversion with parameters as for other iterations
+     begin
+       sq_r := Fake_Bailout/(x*x + y*y + z*z + Offset);
+       x := x*sq_r + Solution_x;
+       y := -y*sq_r + Solution_y;
+       z := -z*sq_r + Solution_z;
+     end;
+
+// Newton transformation	
+
+   sq_r := x*x + y*y + z*z;
+   r := sqrt(sq_r);
+
+   phi := ArcSin(z/r) ;
+   theta := ArcTan2(y,x) ;
+
+   r_pow:= power(r, pow_eff);
+   phi_pow := phi*pow_eff;
+   theta_pow := theta*pow_eff;
+
+   SinCos(theta_pow, sth, cth);
+   SinCos(phi_pow, sph, cph);
+
+   r_norm := r_pow/Power_ ;
+   
+   x := fac_eff*x - cx*cph*cth*r_norm ;
+   y := fac_eff*y - cy*cph*sth*r_norm ;
+   z := fac_eff*z + cz*sph*r_norm ;
+   
+   diffx := (x-Solution_x);
+   diffy := (y-Solution_y);
+   diffz := (z-Solution_z);
+   
+   sq_r := Fake_Bailout/(diffx*diffx + diffy*diffy + diffz*diffz + Offset);
+   x := diffx*sq_r;
+   y := -diffy*sq_r;
+   z := -diffz*sq_r;
+
+// Count iteration if DoFirstInversion = 1
+   If DoFirstInversion <> 2 then
+     begin
+       PIteration3D^.bFirstIt := PIteration3D^.bFirstIt + 1;
+	 end;
+
+end;
+[END]
+SUMMARY:
+ Pseudo Newton made from classic Mandelbulb formula in triplex algebra for learning / testing purposes
+ 1/q^n ":=" q^(-n)
+
+CHANGES:
+ Basis:  JIT_gnj_RealPowerPseuNewt_03.m3f
+
+ JIT_gnj_RealPowNewton_01.m3f:
+  - Variation that tries to reach divergence for ONE known solution Target (which should be specifically easy if Target € Z, and Julia is on)
+    NOTE:  This is the same formula as JIT_gnj_RealPowerPseuNewt5_02.m3f - it is just the base of a new branch for easier naming
+
+ JIT_gnj_RealPowNewton_02.m3f:
+  - Added some simple additions (PreShift_x/y/z) at the very beginning as this creates some nice Julias
+
+ JIT_gnj_RealPowNewton_03.m3f:
+   - Separate configuration for the inversion while 1st iteration (see DoFirstInversion param below)
+
+ JIT_gnj_RealPowNewton_04.m3f:
+   - Some calculation optimizations
+   - Added param Fake_Bailout to simplify hybridisation.
+
+PARAMETERS:
+ Solution_x/y/z: The calculated, or guessed target solution for the Newton method that is taken as the fractal's outside
+ Power_:  The power of the polynom to be solved (t^power - c = 0)
+ Offset:  Added to avoid division by zero when calculating the reciprokes
+ PreShift_x/y/z:  Some shift at the very begin of the calculation. Nice to get some interesting Julia variations
+ DoFirstInversion:
+   o DoFirstInversion = 0 -> NO inversion on first iteration
+   o DoFirstInversion = 1 -> Inversion on a point that can be configured separately (Inversion_x / y / z)
+   o DoFirstInversion = 2 -> Investion on the same point at which the inversion happens for all other iterations (Solution_x / y / z)
+	                         This is the behavior for previous version.
+	
+   o FirstIteration:  The inversions happens for all iteration until FirstIteration.
+                      Has been introduced because of internal MB3D reasons - You need to count all iterations on all tabs that use this formula.
+                      For instance:  If there are 2 iterations of JIT_gnj_RealPowNewton_03 on the first tab, and 1 on the second tab the Inversion_x etc will be taken into account if FirstIteration=3 (i.e. 2+1)
+
+     ATTENTION - Use DoFirstInversion = 0, or 1 with some care:  This uses the internal variable PIteration3D^.bFirstIt which *MAY* be used for other formulas as well that count the iteration (conditional formulas???)
+   o Fake_Bailout:  Introduced to simplify hybridisation (i.e higher 'R Bailout' setting on formula window can be used to match the standard bailouts for other formulas).
+                    Default = 1 (matches 'R Bailout' = 4) for backwards compatibility.
+					Multiply the values for Fake_Bailout and 'R Bailout' with the same number (for a hybridisation with Mandelbulb type: Fake_Bailout = 4 -> 'R Bailout' = 16)
+					The colors (specifically for the cuts) change somehow.
+					Side effect:  High values speed up the calculation.
+					NOTE:  The shape for DoFirstInversion = 2 does depend from Fake_Bailout (it scales).
+					       I did not change that because I wanted to keep one variant that don't touch the internal PIteration3D^.bFirstIt variable.
+
+FORMULA:
+// Preparation operations
+   pow_eff := 1 - Power_;
+   fac_eff := (Power_ - 1)/Power_;
+
+   cx := PIteration3D^.J1;
+   cy := PIteration3D^.J2;
+   cz := PIteration3D^.J3;
+
+   iter1 := PIteration3D^.bFirstIt;
+
+   x := x + PreShift_x;
+   y := y + PreShift_y;
+   z := z + PreShift_z;
+
+// Do Pre-inversion (or not)
+   If DoFirstInversion = 0 then // Don't calculate first inversion
+     begin
+	   sq_r := Fake_Bailout/(x*x + y*y + z*z + Offset);
+       If iter1 >= FirstIteration then
+ 	     begin
+           x := x*sq_r + Solution_x;
+           y := -y*sq_r + Solution_y;
+           z := -z*sq_r + Solution_z;
+		 end;
+     end
+	
+   else if DoFirstInversion = 1 then // Do first inversion with separate parameters
+     begin
+	   sq_r := 1/(x*x + y*y + z*z + Offset);
+       If iter1 < FirstIteration then
+         begin
+           x := x*sq_r + Inversion_x;
+           y := -y*sq_r + Inversion_y;
+           z := -z*sq_r + Inversion_z;
+         end
+       else
+	     begin
+           x := Fake_Bailout*x*sq_r + Solution_x;
+           y := -Fake_Bailout*y*sq_r + Solution_y;
+           z := -Fake_Bailout*z*sq_r + Solution_z;
+		 end;
+     end
+
+   else // if DoFirstInversion = 2 then // Do first inversion with parameters as for other iterations
+     begin
+       sq_r := Fake_Bailout/(x*x + y*y + z*z + Offset);
+       x := x*sq_r + Solution_x;
+       y := -y*sq_r + Solution_y;
+       z := -z*sq_r + Solution_z;
+     end;
+
+// Newton calculation:   t(n+1) := ((p-1)/p)*t(n) - c*t(n)^(1-p)/p
+   sq_r := x*x + y*y + z*z;
+   r := sqrt(sq_r);
+
+   phi := ArcSin(z/r) ;
+   theta := ArcTan2(y,x) ;
+
+   r_pow:= power(r, pow_eff);
+   phi_pow := phi*pow_eff;
+   theta_pow := theta*pow_eff;
+
+   SinCos(theta_pow, sth, cth);
+   SinCos(phi_pow, sph, cph);
+
+   r_norm := r_pow/Power_ ;
+
+   x := fac_eff*x - cx*cph*cth*r_norm ;
+   y := fac_eff*y - cy*cph*sth*r_norm ;
+   z := fac_eff*z + cz*sph*r_norm ;
+
+   diffx := (x-Solution_x);
+   diffy := (y-Solution_y);
+   diffz := (z-Solution_z);
+
+   sq_r := Fake_Bailout/(diffx*diffx + diffy*diffy + diffz*diffz + Offset);
+   x := diffx*sq_r;
+   y := -diffy*sq_r;
+   z := -diffz*sq_r;
+
+// Count iteration if DoFirstInversion = 1
+   If DoFirstInversion <> 2 then
+     begin
+       PIteration3D^.bFirstIt := PIteration3D^.bFirstIt + 1;
+	 end;

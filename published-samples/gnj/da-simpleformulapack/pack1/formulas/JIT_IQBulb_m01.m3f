@@ -1,0 +1,47 @@
+[OPTIONS]
+.DEScale = 1
+.SIPow = 2
+.Version = 9
+.Double mut1_ = 0
+.Double Power_ = 8
+[SOURCE]
+procedure MyFormula(var x, y, z, w: Double; PIteration3D: TPIteration3D);
+var
+   sq_r: double;
+   sq_xz: double;
+   r, theta, zangle: double;
+   sz, st, cz, ct: double;
+ 
+begin
+   sq_r := sqrt(x*x+y*y+z*z+mut1_);
+   sq_xz := sqrt(x*x+z*z-mut1_);
+   r:= power(sq_r, Power_);
+
+   theta := arctan2( sq_xz , y) * Power_;
+   {This is true everywhere, because sq_r is >=0 ; atan2(a,b) differs from atan(a/b) when b<0
+   I must use atan2 because 'acos' is missing in assembly.}
+   zangle := arctan2(x,z)  * Power_;
+
+   SinCos(zangle, sz, cz);
+   SinCos(theta, st, ct);
+
+   x := sz*st*r+PIteration3D^.J1;
+   y := ct   *r+PIteration3D^.J2;
+   z := st*cz*r+PIteration3D^.J3;
+
+end;
+[END]
+Original formula name:  JIT_IQ_Bulb_m01.m3f
+Mutation m01 from JIT_IQ_Bulb.m3f as delivered with M3D v190
+
+   sq_r := sqrt(x*x+y*y+z*z+mut1_);  // Mutation:  Added fix value
+   sq_xz := sqrt(x*x+z*z-mut1_);  // Mutation:  Substraced fix value
+   r:= power(sq_r, Power_);
+
+   theta := arctan2( sq_xz , y) * Power_;
+   zangle := arctan2(x,z)  * Power_;
+
+   x := sin(zangle)*sin(theta)*r+PIteration3D^.J1;
+   y := cos(theta)            *r+PIteration3D^.J2;
+   z := sin(theta)*cos(zangle)*r+PIteration3D^.J3;
+

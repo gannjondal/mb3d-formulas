@@ -1,0 +1,83 @@
+[OPTIONS]
+.DEScale = 1
+.SIPow = 2
+.Version = 9
+.Double Power_ = 8
+[SOURCE]
+procedure MyFormula(var x, y, z, w: Double; PIteration3D: TPIteration3D);
+
+var
+   sq_r: double;
+   r, theta, phi: double;
+   r_pow, theta_pow, phi_pow: double;
+   cx, cy, cz: double;
+   pow_eff, fac_eff: double;
+   sph, sth, cph, cth: double;
+
+begin
+
+   pow_eff := 1 - Power_;
+   fac_eff := -pow_eff/Power_;
+
+   cx := PIteration3D^.J1;
+   cy := PIteration3D^.J2;
+   cz := PIteration3D^.J3;
+  
+   sq_r := x*x + y*y + z*z;
+   r := sqrt(sq_r);
+
+   phi := -ArcSin(z/r) ;
+   theta := -ArcTan2(y,x) ;
+
+   r_pow:= power(r, pow_eff)/Power_;
+   phi_pow := phi*pow_eff;
+   theta_pow := theta*pow_eff;
+   
+   SinCos(theta_pow, sth, cth);
+   SinCos(phi_pow, sph, cph);
+
+   x := fac_eff*x + cx*cph*cth*r_pow ;
+   y := fac_eff*y + cy*cph*sth*r_pow ;
+   z := fac_eff*z - cz*sph*r_pow ;
+   
+end;
+[END]
+SUMMARY:
+  - Pseudo Newton made from classic Mandelbulb formula in triplex algebra
+  - Acctually this should contain a bug in +/i - however, I keep it for 
+    compatibility with older pictures ( and since under certain circumstances
+	the prictures look better - don't know yet why ;-) )
+
+General formula:
+ t(n+1) := t(n)*(Power_ - 1)/Power_ - c*t^(-n)/Power_
+ 
+ (set 1/t^n ":=" t^(-n), and ignored all limitations about triplex algebra on commutativity)
+
+CHANGES: 
+  - Version 02 of JIT_gnj_RealPowerPseuNewt2:
+     (optimized cos/sin , and r calculation)
+ 
+FORMULA: 
+   pow_eff := 1 - Power_;
+   fac_eff := -pow_eff/Power_;
+
+   cx := PIteration3D^.J1;
+   cy := PIteration3D^.J2;
+   cz := PIteration3D^.J3;
+  
+   sq_r := x*x + y*y + z*z;
+   r := sqrt(sq_r);
+
+   phi := -ArcSin(z/r) ;
+   theta := -ArcTan2(y,x) ;
+
+   r_pow:= power(r, pow_eff)/Power_;
+   phi_pow := phi*pow_eff;
+   theta_pow := theta*pow_eff;
+   
+   SinCos(theta_pow, sth, cth);
+   SinCos(phi_pow, sph, cph);
+
+   x := fac_eff*x - cx*cph*cth*r_pow ;
+   y := fac_eff*y - cy*cph*sth*r_pow ;
+   z := fac_eff*z + cz*sph*r_pow ;

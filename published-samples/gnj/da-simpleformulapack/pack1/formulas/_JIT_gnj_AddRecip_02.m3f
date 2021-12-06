@@ -1,0 +1,78 @@
+[OPTIONS]
+.DEOption = -1
+.DEScale = 1
+.SIPow = 2
+.Version = 9
+.Double Center_x = 0.0
+.Double Center_y = 0.0
+.Double Center_z = 0.0
+.Double Factor_Linear = 1
+.Double Factor_Reciprocal = 1
+.Double Offset = 1.0e-10
+.Double Use_C = 1.0
+
+[SOURCE]
+procedure MyFormula(var x, y, z, w: Double; PIteration3D: TPIteration3D);
+var
+  sq_r: Double;
+  x_rec, y_rec, z_rec: Double;
+  x_tmp, y_tmp, z_tmp: Double;
+  cx, cy, cz: Double;
+
+begin
+  cx:= PIteration3D^.J1;
+  cy:= PIteration3D^.J2;
+  cz:= PIteration3D^.J3;
+
+  x_tmp := x - Center_x;
+  y_tmp := y - Center_y;
+  z_tmp := z - Center_z;
+  
+  sq_r := 1/(x_tmp*x_tmp + y_tmp*y_tmp + z_tmp*z_tmp + Offset);
+  
+  x_rec := x_tmp*sq_r;
+  y_rec := -y_tmp*sq_r;
+  z_rec := -z_tmp*sq_r;
+
+  x_tmp := Factor_Linear*x + Factor_Reciprocal*x_rec;
+  y_tmp := Factor_Linear*y + Factor_Reciprocal*y_rec;
+  z_tmp := Factor_Linear*z + Factor_Reciprocal*z_rec;
+
+  x := x_tmp + Use_C*cx;
+  y := y_tmp + Use_C*cy;
+  z := z_tmp + Use_C*cz;
+
+end;
+
+[END]
+DESCRIPTION:
+Simple variant a sum of a triplex, and its reciprocal (and c):
+
+  t(n+1) = Factor_Linear * t(n) + Factor_Reciprocal / (t(n)-Center) + Use_C*c
+
+Each summand has its real factor. 
+
+Used a cartesian version of triplex 1/z, where
+  1/t "=" (x, -y, -z) / R^2
+where
+  R = x*x + y*y + z*z + Offset
+For details see http://www.fractalforums.com/theory/re-triplex-1z/
+
+May be weird as an independent fractal, 
+but as kind of tranform it is ok, and quite fast,
+specifically if compared with MobiusTpx, and TalisTpx
+(and with an Offset>0 it has no discontinuities)
+Can build nice rings from subsequent formulas; 
+and even with discontinuities it's worth to check 
+
+CHANGES:
+_JIT_gnj_AddRecip_01.m3f
+- Moved to Adds section because of the formula's weird DE, 
+  and because it's more useful to use it as transformation
+- Renamed to match some naming rules. Old formula name:   JIT_gnj_zduz
+ 
+_JIT_gnj_AddRecip_02.m3f
+- Added a center point for the inversion (only) - Params: Center_X / Center_Y / Center_Z
+- Made the addition for C configurable.
+  Now it can use as a pretransform for a simple inversion at a point
+

@@ -1,0 +1,100 @@
+[OPTIONS]
+.DEScale = 1
+.SIPow = 2
+.Version = 9
+.Double Factor1 = 1
+.Double Factor2 = 0.2
+.Double Power1 = 3
+.Double Power2 = -3
+.Double r_shift1 = 0
+.Double r_shift2 = 0
+[SOURCE]
+procedure MyFormula(var x, y, z, w: Double; PIteration3D: TPIteration3D);
+
+var
+   sq_r: double;
+   {sq_xy: double;}
+   r, theta, phi: double;
+   r_pow1, theta_pow1, phi_pow1: double;
+   r_pow2, theta_pow2, phi_pow2: double;
+   sph1, sth1, cph1, cth1: double;
+   sph2, sth2, cph2, cth2: double;
+   cx, cy, cz: double;
+
+begin
+   cx := PIteration3D^.J1;
+   cy := PIteration3D^.J2;
+   cz := PIteration3D^.J3;
+  
+   sq_r := x*x+y*y+z*z;
+   r := sqrt(sq_r);
+
+   phi := ArcSin(z/r) ;
+   theta := ArcTan2(y,x) ;
+
+   r_pow1:= 1/(power(r, -Power1) + r_shift1);
+   phi_pow1 := phi*Power1;
+   theta_pow1 := theta*Power1;
+
+   r_pow2:= 1/(power(r, -Power2) + r_shift2);
+   phi_pow2 := phi*Power2;
+   theta_pow2 := theta*Power2;
+
+   SinCos(theta_pow1, sth1, cth1);
+   SinCos(phi_pow1, sph1, cph1);
+
+   SinCos(theta_pow2, sth2, cth2);
+   SinCos(phi_pow2, sph2, cph2);
+
+   x := Factor1*cph1*cth1*r_pow1 + Factor2*cph2*cth2*r_pow2 + cx;
+   y := Factor1*cph1*sth1*r_pow1 + Factor2*cph2*sth2*r_pow2 + cy;
+   z := -Factor1*sph1*r_pow1 - Factor2*sph2*r_pow2 + cz;
+end;
+[END]
+SUMMARY:
+Extended classic Mandelbulb formula in triplex algebra
+Optimized version by using SinCos() procedure instead of individual functions
+
+CHANGES:
+JIT_gnj_TwoRealPower_02.m3f:
+-> Sum of two summands which can have different power
+-> Introduced a r_shift for each summand which is interesting mainly for negative powers  
+   to either avoid zero quotients, or to introduce them (-> spheres):
+
+   A simple r^(-n) = 1/r^n is turned to 1/(r^n + r_shift)
+
+General formula:  t(n+1) = Factor1*t(n)^Power1 + Factor2*t(n)^Power2 + c
+where 
+* t:=(x,y,z) in cartesian coordinates
+  respective t:=(r, phi, theta) in a variant of spherical coordinates  
+* c:=(cx,cy,cz) in cartesian coordinates
+
+FORMULA:
+// calculate the radius  
+   sq_r := x*x+y*y+z*z;
+   r := sqrt(sq_r);
+
+// calculate the sperical angles
+   phi := ArcSin(z/r) ;
+   theta := -ArcTan2(x,y) ;
+
+// calculate the powers for the spherical coordinates, add the r_shift, and do the rotation
+   r_pow1:= 1/(power(r, -Power1) + r_shift1);
+   phi_pow1 := phi*Power1;
+   theta_pow1 := theta*Power1;
+
+   r_pow2:= 1/(power(r, -Power2) + r_shift2);
+   phi_pow2 := phi*Power2;
+   theta_pow2 := theta*Power2;
+
+// Calculate sin and cos
+   SinCos(theta_pow1, sth1, cth1);
+   SinCos(phi_pow1, sph1, cph1);
+
+   SinCos(theta_pow2, sth2, cth2);
+   SinCos(phi_pow2, sph2, cph2);
+
+// Bring it together
+   x := Factor1*cph1*cth1*r_pow1 + Factor2*cph2*cth2*r_pow2 + cx;
+   y := Factor1*cph1*sth1*r_pow1 + Factor2*cph2*sth2*r_pow2 + cy;
+   z := -Factor1*sph1*r_pow1 - Factor2*sph2*r_pow2 + cz;

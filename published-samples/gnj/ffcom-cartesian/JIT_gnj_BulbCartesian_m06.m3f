@@ -1,0 +1,109 @@
+[OPTIONS]
+.DEScale = 1
+.SIPow = 2
+.Version = 9
+.Double Var_z_1 = 0
+.Double Var_z_2 = 0
+.Double Var_z_3 = 0
+.Double Var_z_4 = 0
+.Double Var_z_5 = 0
+.Double Var_z_6 = 0
+
+[SOURCE]
+procedure MyFormula(var x, y, z, w: Double; PIteration3D: TPIteration3D);
+
+var
+   rxy, sq_rxy, qu_rxy: double;
+   x_tmp, y_tmp, z_tmp: double;
+   rho1, rho2: double;
+   tmp: double;
+   sq_x, sq_y, sq_z: double; 
+   qu_x, qu_y, qu_z: double; 
+   hx_x, hx_y, hx_z: double; 
+   cx, cy, cz: double;
+
+begin
+
+// set c
+   cx := PIteration3D^.J1;
+   cy := PIteration3D^.J2;
+   cz := PIteration3D^.J3;
+  
+// calculating helper variables
+   sq_rxy := x*x + y*y;
+   rxy := sqrt(sq_rxy);
+   qu_rxy := sq_rxy*sq_rxy;
+   
+   sq_x := x*x;
+   sq_y := y*y;
+   sq_z := z*z;
+   
+   qu_x := sq_x*sq_x;
+   qu_y := sq_y*sq_y;
+   qu_z := sq_z*sq_z;
+   
+   hx_x := qu_x*sq_x;
+   hx_y := qu_y*sq_y;
+   hx_z := qu_z*sq_z;
+   
+   tmp := 1 + (qu_z*qu_z - 28*hx_z*sq_rxy + 70*qu_z*qu_rxy - 28*sq_z*qu_rxy*sq_rxy)/(qu_rxy*qu_rxy);
+   
+//calculate the power   
+   x_tmp := tmp*(qu_x*qu_x - 28*qu_x*sq_x*sq_y + 70*qu_x*qu_y - 28*sq_x*qu_y*sq_y + qu_y*qu_y);
+   y_tmp := 8*tmp*x*y*(hx_x - 7*qu_x*sq_y + 7*sq_x*qu_y - hx_y);
+   z_tmp := (8 + Var_z_1)*z*rxy*((1 + Var_z_2)*sq_z - (1 + Var_z_3)*sq_rxy)*((1 + Var_z_4)*qu_z - (6 + Var_z_5)*sq_z*sq_rxy + (1 + Var_z_6)*qu_rxy);
+   
+//set x, y, and z
+   x := x_tmp + cx;
+   y := y_tmp + cy;
+   z := z_tmp + cz;
+   
+end;
+[END]
+SUMMARY:
+General calculation:
+ Common (= negative sine) power 8 bulb, pure cartesian calculation.
+ t(n+1) = t(n)^8 + c
+
+where 
+* t:=(x,y,z) in cartesian coordinates
+* c:=(cx,cy,cz) in cartesian coordinates
+
+CHANGES:Based on JIT_gnj_BulbCartesian.m3f
+Basic Mutation 06:  Each parameter adds a fix value to one coefficient of the final calculation of the z coordinate
+
+FORMULA:
+
+// set c
+   cx := PIteration3D^.J1;
+   cy := PIteration3D^.J2;
+   cz := PIteration3D^.J3;
+  
+// calculating helper variables
+   sq_rxy := x*x + y*y;
+   rxy := sqrt(sq_rxy);
+   qu_rxy := sq_rxy*sq_rxy;
+   
+   sq_x := x*x;
+   sq_y := y*y;
+   sq_z := z*z;
+   
+   qu_x := sq_x*sq_x;
+   qu_y := sq_y*sq_y;
+   qu_z := sq_z*sq_z;
+   
+   hx_x := qu_x*sq_x;
+   hx_y := qu_y*sq_y;
+   hx_z := qu_z*sq_z;
+   
+   tmp := 1 + (qu_z*qu_z - 28*hx_z*sq_rxy + 70*qu_z*qu_rxy - 28*sq_z*qu_rxy*sq_rxy)/(qu_rxy*qu_rxy);
+   
+//calculate the power   
+   x_tmp := tmp*(qu_x*qu_x - 28*qu_x*sq_x*sq_y + 70*qu_x*qu_y - 28*sq_x*qu_y*sq_y + qu_y*qu_y);
+   y_tmp := 8*tmp*x*y*(hx_x - 7*qu_x*sq_y + 7*sq_x*qu_y - hx_y);
+   z_tmp := (8 + Var_z_1)*z*rxy*((1 + Var_z_2)*sq_z - (1 + Var_z_3)*sq_rxy)*((1 + Var_z_4)*qu_z - (6 + Var_z_5)*sq_z*sq_rxy + (1 + Var_z_6)*qu_rxy);
+   
+//set x, y, and z
+   x := x_tmp + cx;
+   y := y_tmp + cy;
+   z := z_tmp + cz;

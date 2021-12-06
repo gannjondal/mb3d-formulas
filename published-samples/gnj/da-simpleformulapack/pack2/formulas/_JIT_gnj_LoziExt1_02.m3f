@@ -1,0 +1,44 @@
+[OPTIONS]
+.DEOption = -1
+.DEScale = 1
+.SIPow = 2
+.Version = 9
+.Double a = 1.6
+.Double b = 0.5
+.Double c = 0.5
+[SOURCE]
+procedure MyFormula(var x, y, z, w: Double; PIteration3D: TPIteration3D);
+
+var
+   x_tmp, y_tmp, z_tmp: double;
+
+begin
+   x_tmp := 1.0+y-a*abs(x);
+   y_tmp := b*x;
+   z_tmp := y+c*abs(z);
+
+   x := x_tmp + PIteration3D^.J1;
+   y := y_tmp + PIteration3D^.J2;
+   z := z_tmp + PIteration3D^.J3;
+end;
+[END]
+SUMMARY: 
+  Lozi Attractor, extended to 3D.
+  For those who like sharp edges
+  NOTE:  This is somehow a test. 
+         The extension to 3D makes no mathematical sense
+
+  Old formula name:  JIT_gann_LoziExt1.m3f
+
+CHANGES:
+_JIT_gnj_LoziExt1_02.m3f :
+  Moved to Adds section  
+
+FORMULA:
+   x_tmp := 1.0+y-a*abs(x);
+   y_tmp := b*x;
+   z_tmp := y+c*abs(z);
+
+   x := x_tmp + cx;
+   y := y_tmp + cy;
+   z := z_tmp + cz;

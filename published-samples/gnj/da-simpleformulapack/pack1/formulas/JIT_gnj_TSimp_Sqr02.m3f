@@ -1,0 +1,40 @@
+[OPTIONS]
+.DEScale = 1
+.SIPow = 2
+.Version = 9
+.Double x_add = 0
+.Double y_add = 0
+.Double z_add = 0
+[SOURCE]
+procedure MyFormula(var x, y, z, w: Double; PIteration3D: TPIteration3D);
+
+var
+   x_tmp, y_tmp, z_tmp: double;
+
+begin
+   x_tmp := x*x - y*y - z*z + 2*y*z;
+   y_tmp := 2*x*y;
+   z_tmp := 2*x*z;
+
+   x := x_tmp + x_add + PIteration3D^.J1;
+   y := y_tmp + y_add + PIteration3D^.J2;
+   z := z_tmp + z_add + PIteration3D^.J3;
+end;
+[END]
+SUMMARY:
+One of those trials to move a Mandelbrot set to 3D without using triplex numbers
+
+General formula:
+    q(n+1) := q(n)*q(n) + c
+  where q are on variant of non-triplex 
+  pseudo hypercomplex numbers
+
+Old name:  JIT_gann_TSimp_Sqr2.m3f
+
+   x_tmp := x*x - y*y - z*z + 2*y*z;
+   y_tmp := 2*x*y;
+   z_tmp := 2*x*z;
+
+   x := x_tmp + x_add + cx;
+   y := y_tmp + y_add + cy;
+   z := z_tmp + z_add + cz;

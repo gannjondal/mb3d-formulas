@@ -1,0 +1,73 @@
+[OPTIONS]
+.DEScale = 1
+.SIPow = 2
+.Version = 9
+.Double Power_ = 8
+[SOURCE]
+procedure MyFormula(var x, y, z, w: Double; PIteration3D: TPIteration3D);
+
+var
+   sq_r: double;
+   r, theta, phi: double;
+   r_pow, theta_pow, phi_pow: double;
+   cx, cy, cz: double;
+   sph, sth, cph, cth: double;
+
+begin
+   cx := PIteration3D^.J1;
+   cy := PIteration3D^.J2;
+   cz := PIteration3D^.J3;
+  
+   sq_r := x*x+y*y+z*z;
+   r := sqrt(sq_r);
+
+   phi := ArcSin(z/r) ;
+   theta := ArcTan2(y,x) ;
+
+   r_pow:= power(r, Power_);
+   phi_pow := phi*Power_;
+   theta_pow := theta*Power_;
+
+   SinCos(theta_pow, sth, cth);
+   SinCos(phi_pow, sph, cph);
+
+   x := cph*cth*r_pow + cx;
+   y := cph*sth*r_pow + cy;
+   z := -sph*r_pow + cz;
+end;
+[END]
+SUMMARY:
+Classic Mandelbulb formula in triplex algebra for learning / testing purposes
+Slight optimization by using SinCos() procedure instead of individual sin/cos
+
+General formula:  t(n+1) = t(n)^Power_ + c
+where 
+* t:=(x,y,z) in cartesian coordinates
+  respective t:=(r, phi, theta) in a variant of spherical coordinates  
+* c:=(cx,cy,cz) in cartesian coordinates
+
+Old formula name:  JIT_gnj_CommonBulb.m3f -> JIT_bas_RealPower_02.m3f
+
+FORMULA:
+
+// calculate the radius  
+   sq_r := x*x+y*y+z*z;
+   r := sqrt(sq_r);
+
+// calculate the sperical angles
+   phi := ArcSin(z/r) ;
+   theta := -ArcTan2(x,y) ;
+
+// calculate the power for the spherical coordinates, and do the rotation
+   r_pow:= power(r, Power_);
+   phi_pow := phi*Power_;
+   theta_pow := theta*Power_;
+
+// Calculate sin and cos
+   SinCos(theta_pow, sth, cth);
+   SinCos(phi_pow, sph, cph);
+
+// Bring it together
+   x := cph*cth*r_pow + cx;
+   y := cph*sth*r_pow + cy;
+   z := -sph*r_pow + cz;

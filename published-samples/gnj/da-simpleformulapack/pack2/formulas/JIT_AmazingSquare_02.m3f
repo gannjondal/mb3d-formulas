@@ -1,0 +1,98 @@
+[OPTIONS]
+.DEScale = 1
+.SIPow = 2
+.Version = 9
+.Double Fold = 1
+.Double Rmin = 0.3
+.Double Scale = 2
+[SOURCE]
+procedure MyFormula(var x, y, z, w: Double; PIteration3D: TPIteration3D);
+var
+  r2: Double;
+  x2, y2, z2: Double;
+  x_tmp, y_tmp, z_tmp: Double;
+  cx, cy, cz: Double;
+  rmin2, m: Double;
+begin
+  cx:= PIteration3D^.J1;
+  cy:= PIteration3D^.J2;
+  cz:= PIteration3D^.J3;
+
+  x2 := x*x;
+  y2 := y*y;
+  z2 := z*z;
+
+  x_tmp := abs(x2+Fold) - abs(x2-Fold) - x2;
+  y_tmp := abs(y2+Fold) - abs(y2-Fold) - y2;
+  z_tmp := abs(z2+Fold) - abs(z2-Fold) - z2;
+
+  r2 := x_tmp*x_tmp + y_tmp*y_tmp + z_tmp*z_tmp;
+  rmin2 := Rmin*Rmin;
+
+  if r2 < rmin2 then
+    begin
+      m := rmin2;
+    end
+  else if r2<1 then
+    begin
+      m := scale/r2;
+    end
+  else
+    begin
+      m := scale;
+    end;
+
+  x := m*x_tmp + cx;
+  y := m*y_tmp + cy;
+  z := m*z_tmp + cz;
+end;
+[END]
+SUMMARY:
+ First test with Amzaing Box a.k.a Tglad folding.
+ The only difference to a pure ABox is the squaring
+ of all components at the begin.
+ I leave it here for your own tests.
+ 
+ It works so far, but only on 3D tab.
+ If moving to 3Da (.DEOption = 2 or 11) I only get dust, 
+ independent from secondary settings like 
+ .RStop , or .ADEscale 
+
+ Old formula name:  JIT_gnj_ASquare_02.m3f
+ 
+PARAMETERS:
+ Fold, Rmin, Scale as usual for Aboxes  
+ 
+FORMULA:
+
+// do pre-squaring
+  x2 := x*x;
+  y2 := y*y;
+  z2 := z*z;
+
+// Abox pure
+  x_tmp := abs(x2+Fold) - abs(x2-Fold) - x2;
+  y_tmp := abs(y2+Fold) - abs(y2-Fold) - y2;
+  z_tmp := abs(z2+Fold) - abs(z2-Fold) - z2;
+
+  r2 := x_tmp*x_tmp + y_tmp*y_tmp + z_tmp*z_tmp;
+  rmin2 := Rmin*Rmin;
+
+  if r2 < rmin2 then
+    begin
+      m := rmin2;
+    end
+  else if r2<1 then
+    begin
+      m := scale/r2;
+    end
+  else
+    begin
+      m := scale;
+    end;
+
+// Add c
+  x := m*x_tmp + cx;
+  y := m*y_tmp + cy;
+  z := m*z_tmp + cz;
+ 

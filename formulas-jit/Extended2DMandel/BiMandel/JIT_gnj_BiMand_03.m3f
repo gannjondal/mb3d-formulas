@@ -1,0 +1,85 @@
+[OPTIONS]
+.DEoption = 4
+.DEScale = 1
+.RStop = 16
+.SIPow = 2
+.Version = 9
+
+.Double mwx = 0.0
+.Double mwy = 0.0
+.Double mxw = 0.0
+.Double mxz = -1.0
+.Double myw = 0.0
+.Double myz = 0.0
+.Double mzx = 0.0
+.Double mzy = 0.0
+.Double W_Add = 0.0
+
+[CONSTANTS]
+
+[SOURCE]
+procedure MyFormula(var x, y, z, w: Double; PIteration3D: TPIteration3D);
+
+var
+   cx, cy, cz, cw: double;
+   tmpx, tmpy, tmpz, tmpw: double;
+
+begin
+
+// Preparation operations
+   cx := PIteration3D^.J1;
+   cy := PIteration3D^.J2;
+   cz := PIteration3D^.J3;
+   cw := W_Add;
+   
+// Calculus   
+   tmpx := x*x - y*y;
+   tmpy := 2*x*y;
+   tmpz := z*z - w*w;
+   tmpw := 2*z*w;
+
+   x := tmpx + mxz*tmpz + mxw*tmpw + cx;
+   y := tmpy + myw*tmpw + myz*tmpz + cy;
+   z := tmpz + mzx*tmpx + mzy*tmpy + cz;
+   w := tmpw + mwy*tmpy + mwx*tmpx + cw;
+
+end;
+[END]
+SUMMARY:
+  Two complex mandelbrot sets of power 2,
+  orthogonal to each other 
+  (one in the (x,y) plane, one in the (z,w) plane)
+  Basically this is an extension of Mandel4DBiC
+  (which I however did see quite late)
+
+CHANGES:
+ JIT_gnj_BiMand_03.m3f
+   Adding some more mix parameters
+   between both mandelbrot sets
+   (mxw, myz, mzy, mwx)
+
+ JIT_gnj_BiMand_02.m3f
+ (copy of WRK_BiMand_02.m3f 
+  as of the M3D work instance): 
+   Adding some mix parameters between
+   both mandelbrot sets
+ 
+PARAMETERS:
+
+FORMULA:
+// Preparation operations
+   cx := PIteration3D^.J1;
+   cy := PIteration3D^.J2;
+   cz := PIteration3D^.J3;
+   cw := W_Add;
+   
+// Calculus   
+   tmpx := x*x - y*y;
+   tmpy := 2*x*y;
+   tmpz := z*z - w*w;
+   tmpw := 2*z*w;
+
+   x := tmpx + mxz*tmpz + mxw*tmpw + cx;
+   y := tmpy + myw*tmpw + myz*tmpz + cy;
+   z := tmpz + mzx*tmpx + mzy*tmpy + cz;
+   w := tmpw + mwy*tmpy + mwx*tmpx + cw;

@@ -1,0 +1,68 @@
+[OPTIONS]
+.DEOption = -1
+.DEScale = 1
+.SIPow = 2
+.Version = 9
+.Double Factor_Linear = 1
+.Double Factor_Reciprocal = 1
+.Double Offset = 0.03
+[CONSTANTS]
+.Double sqrt_1_2 = 0.707106781186548
+.Double sqrt_1_3 = 0.577350269189626
+.Double sqrt_2_3 = 0.816496580927726
+[SOURCE]
+procedure MyFormula(var x, y, z, w: Double; PIteration3D: TPIteration3D);
+var
+  sq_r: Double;
+  x_rec, y_rec, z_rec: Double;
+  x_tmp, y_tmp, z_tmp: Double;
+  cx, cy, cz: Double;
+
+begin
+  cx:= PIteration3D^.J1;
+  cy:= PIteration3D^.J2;
+  cz:= PIteration3D^.J3;
+
+  sq_r := 1/(x*x + y*y + z*z + Offset);
+  
+  x_rec := x*sq_r;
+  y_rec := -y*sq_r;
+  z_rec := -z*sq_r;
+
+  x_tmp := Factor_Linear*x + Factor_Reciprocal*x_rec;
+  y_tmp := Factor_Linear*y + Factor_Reciprocal*y_rec;
+  z_tmp := Factor_Linear*z + Factor_Reciprocal*z_rec;
+
+  x := x_tmp + cx;
+  y := y_tmp + cy;
+  z := z_tmp + cz;
+
+end;
+
+[END]
+DESCRIPTION:
+Simple variant a sum of a triplex, and its reciprocal (and c):
+
+  t(n+1) = Factor_Linear * t(n) + Factor_Reciprocal / t(n) + c
+
+Each summand has its real factor. 
+
+Used a cartesian version of triplex 1/z, where
+  1/t "=" (x, -y, -z) / R^2
+where
+  R = x*x + y*y +z*z + Offset
+For details see http://www.fractalforums.com/theory/re-triplex-1z/
+
+May be weird as an independent fractal, 
+but as kind of tranform it is ok, and quite fast,
+specifically if compared with MobiusTpx, and TalisTpx
+(and with an Offset>0 it has no discontinuities)
+Can build nice rings from subsequent formulas; 
+and even with discontinuities it's worth to check 
+
+CHANGES:
+- Moved to Adds section because of the formula's weird DE, 
+  and because it's more useful to use it as transformation
+- Renamed to match some naming rules. Old formula name:   JIT_gnj_zduz
+ 
+

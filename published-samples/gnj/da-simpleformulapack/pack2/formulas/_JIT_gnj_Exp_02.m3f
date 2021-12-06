@@ -1,0 +1,66 @@
+[OPTIONS]
+.DEOption = -1
+.DEScale = 1
+.SIPow = 2
+.Version = 9
+[SOURCE]
+procedure MyFormula(var x, y, z, w: Double; PIteration3D: TPIteration3D);
+
+var
+   r, sq_r: double;
+   r_xy: double;
+   cx, cy, cz: double;
+   a1, a2, alpha1, alpha2: double;
+
+begin
+   cx := PIteration3D^.J1;
+   cy := PIteration3D^.J2;
+   cz := PIteration3D^.J3;
+
+   sq_r := x*x+y*y+z*z;
+   r := sqrt(sq_r);
+   r_xy := sqrt(x*x+y*y);
+
+   a1 := exp(x - y*z/r_xy)/2;
+   a2 := exp(x + y*z/r_xy)/2;
+   alpha1 := x*z/r_xy + y;
+   alpha2 := x*z/r_xy - y;
+
+   x := a1*cos(alpha1) + a2*cos(alpha2) + cx;
+   y := a1*cos(alpha1) - a2*cos(alpha2) + cy;
+   z := exp(r_xy)*sin(z) + cz;
+end;
+[END]
+SUMMARY:
+  Exponential formula
+
+  General formula:  t(n+1) = exp(t(n)) + c
+  where
+   * t:=(x,y,z) in cartesian coordinates
+   * c:=(cx,cy,cz) in cartesian coordinates
+
+   Used simplified exponential for triplex numbers as described at
+    http://www.fractalforums.com/theory/triplex-algebra/60/
+
+CHANGES:
+  _JIT_gnj_Exp_02.m3f :   Moved to Adds section
+  Nevertheless the DE gets worse; therefore use it as
+  one-time formula
+
+FORMULA:
+   cx := PIteration3D^.J1;
+   cy := PIteration3D^.J2;
+   cz := PIteration3D^.J3;
+
+   sq_r := x*x+y*y+z*z;
+   r := sqrt(sq_r);
+   r_xy := sqrt(x*x+y*y);
+
+   a1 := exp(x - y*z/r_xy)/2;
+   a2 := exp(x + y*z/r_xy)/2;
+   alpha1 := x*z/r_xy + y;
+   alpha2 := x*z/r_xy - y;
+
+   x := a1*cos(alpha1) + a2*cos(alpha2) + cx;
+   y := a1*cos(alpha1) - a2*cos(alpha2) + cy;
+   z := exp(r_xy)*sin(z) + cz;
