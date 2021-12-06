@@ -1,5 +1,5 @@
 # Recent JIT formulas around the implementation of the 3D Newton bulb   
-For compatibility to older examples in dA, and ff.org all older formulas are available in [this folder:](/published-samples/fforg-da-3dnewton/)   
+For compatibility to older examples in dA, and ff.org all older formulas are available in this folder: [/published-samples/fforg-da-3dnewton/](/published-samples/fforg-da-3dnewton/)   
    
 ## Current references:   
 - FF org - Revisiting the 3D Newton (original introduction of the principle):   
@@ -13,18 +13,18 @@ For compatibility to older examples in dA, and ff.org all older formulas are ava
 - `JIT` is the mandatory prefix for JIT formulas   
 - `gnj` is my 3-digit identifier (for `gannjondal`)   
 - `RealPowNewt` = (3D) Newton fractal formula using triplex numbers, and a free power parameter of type floating point   
-- `Pow3Newton` = (3D) Newton fractal formula using triplex numbers for z^`3` ONLY which uses cartesian coordinates. Hence it avoids sin/cos/atan/power etc, and should hence be faster than the RealPow versions   
+- `Pow3Newton` = (3D) Newton fractal formula using triplex numbers for z^`3` ONLY which uses cartesian coordinates.   
+   Hence it avoids sin/cos/atan/power etc, and should hence be faster than the RealPow versions.   
 - `_01, _02 etc` The logic behind fractal formulas makes it not that easy (well, for me) to ensure backward compatibility.   
    I will try to keep an eye to that topic in future, so that there will not be too many of those \_xy variants.   
-   Also there is not (and will not be) any formula `packages` that may have an own versioning.   
+   Also there is not (and will not be) any formula packages that may have an own versioning.   
    Finally MB3D requires relatively short formula names (something like <24 characters; I don't recall the exact value) only, so that it's not possible to have something like subversioning like \_01_01 in the most cases.   
    Hence please consider that you may not be able to use a \_02 variant within params originally written with a \_01 of the same type   
-- `E` stands for "easy to use":  It is for z^n-`1`=0 only, and uses `1` as the only fix solution.   
+- `E` stands for "easy to use":  It is for z^n-`1`=0 only, and uses `1` as the one-and-only fix solution.   
   There will be versions with a configurable solution parameter (good for pre-transformations only) published later.   
 - `C` stands for "correct multiplication of c".   
   In earlier versions of MB3D JIT formulas I did not take the effort to correctly multiply c.   
-  As there is no older version for MB2 this is for compatibility across the several fractal programs   
-   
+     
 ## Documentation:   
 The param description has been over from the formula doc of gnj_RealPowNewtE_01.m3f - the variables in other formulas do slightly differ - please check the individual formulas for details, although I may improve the documentation for some older formulas later (well, I hope)...   
    
