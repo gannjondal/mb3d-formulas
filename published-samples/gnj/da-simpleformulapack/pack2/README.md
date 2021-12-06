@@ -1,8 +1,8 @@
-#Formulas, and samples created for the two available formula packages on dA - Pack 2   
+# Formulas, and samples created for the two available formula packages on dA - Pack 2   
    
 Details see https://www.deviantart.com/gannjondal/art/JIT-Formula-Pack-and-Samples-2-of-2-594738839   
    
-##Formula list:   
+## Formula list:   
 - **JIT_AmazingSquare_02.m3f**   
   JIT variant of the known Amazing Box / Tglad folding for lerning purposes.   
   The only tiny difference is that all single parameters gets squared before the folding.   
@@ -27,7 +27,7 @@ Details see https://www.deviantart.com/gannjondal/art/JIT-Formula-Pack-and-Sampl
    My as of now most elaborated formulas. I think I don't promise too much if I say that you can (with some exercise)   a new world of shapes.   
    The explanation would be too long for here. Please have a look to the info section of the formula.   
       
-   Just a few hints:   
+**Just a few hints:**   
    + I would recommend to start with a combination of \_JIT_gnj_RiemSimple_01 in position 1 and IntegerPower in position 2 - and change the values starting with Complex_...   
      The most simple start would be to change Complex_MultAll_x. With increasing (positive) values > 1 you shift all details of the bulb more and more to the north pole of the bulb, and with values down to 0 you shift them to the south pole....   
    + Generally best to be used in combination with formulas of the bulb type (like Integer Power).    
