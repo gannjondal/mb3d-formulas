@@ -26,10 +26,10 @@ The style to use \3-digit name identifiers to identify formula authors comes fro
 To use JIT formulas you need MB3D >= 1.90 .   
 To get the files included into your MB3D place the .m3f files into the configured formula directory (usually \\M3Formulas\\) of your MB3D installation, and (re-)start your MB3D.    
 Afterwards you will see the tab you had configured using the .DEoption parameter in the formula.   
-More hints regarding the development of JIT formulas can be found at [published-samples/da-jittutorial/](published-samples/da-jittutorial/)   
+More hints regarding the development of JIT formulas can be found at [published-samples/gnj/da-jittutorial](published-samples/gnj/da-jittutorial)   
 
 ## Folders:   
-- The folder [formulas-jit/](formulas-jit/) contains JIT .m3f files (and potentially sample data) independent from any publishing elsewhere.   
+- The folder [formulas-jit](formulas-jit) contains JIT .m3f files (and potentially sample data) independent from any publishing elsewhere.   
   Any possible development will happen here.   
      
   The folder contains several subfolders related to several mathematical ideas etc:   
