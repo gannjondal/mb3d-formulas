@@ -26,10 +26,10 @@ The style to use \3-digit name identifiers to identify formula authors comes fro
 To use JIT formulas you need MB3D >= 1.90 .   
 To get the files included into your MB3D place the .m3f files into the configured formula directory (usually \\M3Formulas\\) of your MB3D installation, and (re-)start your MB3D.    
 Afterwards you will see the tab you had configured using the .DEoption parameter in the formula.   
-More hints regarding the development of JIT formulas can be found at [/published-samples/da-jittutorial/](/published-samples/da-jittutorial/)   
+More hints regarding the development of JIT formulas can be found at [published-samples/da-jittutorial/](published-samples/da-jittutorial/)   
 
 ## Folders:   
-- The folder [/formulas-jit](/formulas-jit) contains JIT .m3f files (and potentially sample data) independent from any publishing elsewhere.   
+- The folder [formulas-jit/](formulas-jit/) contains JIT .m3f files (and potentially sample data) independent from any publishing elsewhere.   
   Any possible development will happen here.   
      
   The folder contains several subfolders related to several mathematical ideas etc:   
@@ -48,7 +48,7 @@ More hints regarding the development of JIT formulas can be found at [/published
   - **RiemannSphere:**  Anything related to the idea to do a kind of 2D calculation using Riemann spheres, and spherical projection to the surface (and back)
   - **Simplex**
   
-- The folder [/published-samples](/published-samples) will contain JIT .m3f formulas, and other related data published elsewhere (currently at fractalforums.org, fractalforums.com, and deviantart.com).    
+- The folder [published-samples](published-samples) will contain JIT .m3f formulas, and other related data published elsewhere (currently at fractalforums.org, fractalforums.com, and deviantart.com).    
   The files will not be changed (beyond any possible improvements of non-functional parts like documentation etc).   
   Even corrections would result in new files for compatibility with the existing threads.   
 
