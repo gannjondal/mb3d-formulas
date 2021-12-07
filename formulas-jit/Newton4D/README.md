@@ -1,5 +1,5 @@
 # Recent JIT formulas around the implementation of the 4D Newton bulb   
-For compatibility to older examples in dA, and ff.org all older formulas are available in this folder:  [/published-samples/fforg-da-3dnewton/](/published-samples/fforg-da-3dnewton/)   
+For compatibility to older examples in dA, and ff.org all older formulas are available in this folder:  [/published-samples/gnj/fforg-da-3dnewton/](/published-samples/gnj/fforg-da-3dnewton/)   
    
 ## Current references:   
 - FF org - Revisiting the 3D Newton (original introduction of the principle):   
