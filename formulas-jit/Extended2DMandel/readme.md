@@ -23,5 +23,6 @@ The implementation is rather simple as well - within `JIT_gnj_BiMand_03.m3f` the
    z := tmpz + mzx*tmpx + mzy*tmpy + cz;   
    w := tmpw + mwy*tmpy + mwx*tmpx + cw;   
 ```   
-where (x, y), and (z, w) span the two planes, and tmp* are the respective temporary variables.   
+where (x, y), and (z, w) span the two planes, and `tmp*` are the respective temporary variables.   
 The variables `m[target][source]` are the configurable parameters.   
+Of course, the `c*` variables follow the usual conventions for escape time fractals.   
