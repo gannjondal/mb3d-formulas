@@ -1,0 +1,603 @@
+[OPTIONS]
+.DEScale = 1
+.SIPow = 2
+.Version = 9
+.Double AddCAtEnd = 0
+.Double NumComplexOps = 2
+.Double R_mode = 0
+.Double RC_mode = 0
+.Double Shift_CalcZBackward = -1
+.Double Shift_QuotBackward = 1
+.Double Shift_QuotCForward = 1
+.Double Shift_QuotXYZForward = 1
+.Double SquaredRBackward = 0
+[SOURCE]
+procedure MyFormula(var x, y, z, w: Double; PIteration3D: TPIteration3D);
+
+var
+   cx, cy, cz: double;
+   rc, sq_rc: double;
+   cx_norm, cy_norm, cz_norm: double;
+
+
+   r, sq_r: double;
+   x_norm, y_norm, z_norm: double;
+   quot_xyz, quot_c, quot_xyz_back: double;
+   r_xy, rc_xy: double;
+
+   cmp_r, cmp_phi: double;
+   cmp_x, cmp_y: double;
+   cmp_cx, cmp_cy: double;
+   cmp_xtmp, cmp_ytmp: double;
+   
+
+   r_pow, theta_pow, phi_pow: double;
+   sph, sth, cph, cth: double;
+
+begin
+   cx := PIteration3D^.J1;
+   cy := PIteration3D^.J2;
+   cz := PIteration3D^.J3;
+  
+
+// calculating helper variables
+   sq_rc := cx*cx + cy*cy + cz*cz;
+   rc := sqrt(sq_rc);
+
+   sq_r := x*x + y*y + z*z;
+   r := sqrt(sq_r);
+   
+   rc_xy := sqrt(cx*cx + cy*cy);
+   r_xy := sqrt(x*x + y*y);
+
+// normalization
+
+   x_norm := x/r;
+   y_norm := y/r;
+   z_norm := z/r;
+
+   cx_norm := cx/r;
+   cy_norm := cy/r;
+   cz_norm := cz/r;
+
+// transform to complex
+
+   quot_xyz := 1/(Shift_QuotXYZForward-z_norm);
+   cmp_x := x_norm*quot_xyz;
+   cmp_y := y_norm*quot_xyz;
+   
+   quot_c := 1/(Shift_QuotCForward-cz_norm);
+   cmp_cx := cx_norm*quot_c;
+   cmp_cy := cy_norm*quot_c;
+
+// Forward modifications on complex z using original R
+
+   if R_mode = 1 then
+      begin
+        cmp_x := cmp_x*r;
+		cmp_y := cmp_y*r;
+      end
+	  
+   else if R_mode = 2 then
+	  begin
+        cmp_x := cmp_x*r_xy;
+		cmp_y := cmp_y*r_xy;
+      end
+     
+   else if R_mode = 3 then
+	  begin
+        cmp_x := cmp_x/r;
+		cmp_y := cmp_x/r;
+      end
+
+   else if R_mode = 4 then
+	  begin
+        cmp_x := cmp_x/r_xy;
+		cmp_y := cmp_x/r_xy;
+      end
+
+   else if R_mode = 5 then
+      begin
+        cmp_x := cmp_x*r;
+		cmp_y := cmp_y*r;
+      end
+	  
+   else if R_mode = 6 then
+	  begin
+        cmp_x := cmp_x*r_xy;
+		cmp_y := cmp_y*r_xy;
+      end
+     
+   else if R_mode = 7 then
+	  begin
+        cmp_x := cmp_x/r;
+		cmp_y := cmp_x/r;
+      end
+
+   else if R_mode = 8 then
+	  begin
+        cmp_x := cmp_x/r_xy;
+		cmp_y := cmp_x/r_xy;
+      end;
+
+// Forward modifications on complex c using original RC
+
+   if RC_mode = 1 then
+      begin
+        cmp_cx := cmp_cx*rc;
+		cmp_cy := cmp_cy*rc;
+      end
+	  
+   else if RC_mode = 2 then
+	  begin
+        cmp_cx := cmp_cx*rc_xy;
+		cmp_cy := cmp_cy*rc_xy;
+      end
+     
+   else if RC_mode = 3 then
+	  begin
+        cmp_cx := cmp_cx/rc;
+		cmp_cy := cmp_cx/rc;
+      end
+
+   else if RC_mode = 4 then
+	  begin
+        cmp_cx := cmp_cx/rc_xy;
+		cmp_cy := cmp_cx/rc_xy;
+      end
+
+   else if RC_mode = 5 then
+      begin
+        cmp_cx := cmp_cx*rc;
+		cmp_cy := cmp_cy*rc;
+      end
+	  
+   else if RC_mode = 6 then
+	  begin
+        cmp_cx := cmp_cx*rc_xy;
+		cmp_cy := cmp_cy*rc_xy;
+      end
+     
+   else if RC_mode = 7 then
+	  begin
+        cmp_cx := cmp_cx/rc;
+		cmp_cy := cmp_cx/rc;
+      end
+
+   else if RC_mode = 8 then
+	  begin
+        cmp_cx := cmp_cx/rc_xy;
+		cmp_cy := cmp_cx/rc_xy;
+      end;
+
+// complex calculation
+
+   cmp_xtmp := cmp_x*cmp_x - cmp_y*cmp_y + cmp_cx;
+   cmp_ytmp := 2*cmp_x*cmp_y + cmp_cy;
+   
+   cmp_x := cmp_xtmp;
+   cmp_y := cmp_ytmp;
+
+   If NumComplexOps >= 2 then
+
+     begin   
+       cmp_xtmp := cmp_x*cmp_x - cmp_y*cmp_y + cmp_cx;
+       cmp_ytmp := 2*cmp_x*cmp_y + cmp_cy;
+   
+       cmp_x := cmp_xtmp;
+       cmp_y := cmp_ytmp;
+     end;
+
+
+   If NumComplexOps >= 3 then
+
+     begin   
+       cmp_xtmp := cmp_x*cmp_x - cmp_y*cmp_y + cmp_cx;
+       cmp_ytmp := 2*cmp_x*cmp_y + cmp_cy;
+   
+       cmp_x := cmp_xtmp;
+       cmp_y := cmp_ytmp;
+     end;
+
+// Backwards modifications on complex z using original R
+
+   if R_mode = 5 then
+      begin
+        cmp_x := cmp_x/r;
+		cmp_y := cmp_y/r;
+      end
+	  
+   else if R_mode = 6 then
+	  begin
+        cmp_x := cmp_x/r_xy;
+		cmp_y := cmp_y/r_xy;
+      end
+     
+   else if R_mode = 7 then
+	  begin
+        cmp_x := cmp_x*r;
+		cmp_y := cmp_x*r;
+      end
+
+   else if R_mode = 8 then
+	  begin
+        cmp_x := cmp_x*r_xy;
+		cmp_y := cmp_x*r_xy;
+      end;
+
+// Backwards modifications on complex c using original RC
+
+   if RC_mode = 5 then
+      begin
+        cmp_cx := cmp_cx/rc;
+		cmp_cy := cmp_cy/rc;
+      end
+	  
+   else if RC_mode = 6 then
+	  begin
+        cmp_cx := cmp_cx/rc_xy;
+		cmp_cy := cmp_cy/rc_xy;
+      end
+     
+   else if RC_mode = 7 then
+	  begin
+        cmp_cx := cmp_cx*rc;
+		cmp_cy := cmp_cx*rc;
+      end
+
+   else if RC_mode = 8 then
+	  begin
+        cmp_cx := cmp_cx*rc_xy;
+		cmp_cy := cmp_cx*rc_xy;
+      end;
+
+// transform back to sphere / triplex;
+
+   quot_xyz_back := 1/(Shift_QuotBackward + cmp_x*cmp_x + cmp_y*cmp_y); 
+
+   x_norm := 2*cmp_x*quot_xyz_back;
+   y_norm := 2*cmp_y*quot_xyz_back;
+   z_norm := (cmp_x*cmp_x + cmp_y*cmp_y + Shift_CalcZBackward)*quot_xyz_back;
+
+// de-nomalization
+
+   If SquaredRBackward = 1 then
+     begin
+       //  NOTE:  The use of sq_r is mathematical useless; however in any 
+       //         other case there's not enough dynamic
+       x := x_norm * sq_r + AddCAtEnd*cx;
+       y := y_norm * sq_r + AddCAtEnd*cy;
+       z := z_norm * sq_r + AddCAtEnd*cz;
+     end
+   else
+     begin     
+       x := x_norm * r + AddCAtEnd*cx;
+       y := y_norm * r + AddCAtEnd*cy;
+       z := z_norm * r + AddCAtEnd*cz;
+     end;
+
+end;
+[END]
+SUMMARY:
+  **********************************
+  *  Use this formula careful      *
+  *  (1, or maybe 2 iterations     *
+  *  combined with other formulas) *
+  *  Then it can have great,       *
+  *  but not destroying effects.   *
+  **********************************
+
+ What this formula does is to 
+ - map a triplex number as a Riemann sphere 
+   (i.e. divide all coordinates by R)
+ - transform it to the complex plane
+   (stereographic projection)
+ - does some operation in complex plane 
+   (in this case classic Mandelbrot calculation z^2+c)
+ - transform the number back to a Rieman sphere
+ - re-apply (original) R
+
+NOTE:  
+ By standard the radius of the triplex number will not be changed.
+ Therefore this is more a transformation rather than independent formula.
+
+More is discussed at https://www.fractalforums.com/mandelbulb-3d/a-new-jit-formula/
+
+CHANGES:
+JIT_gnj_RiemannPower2_06.m3f
+   - Renaming back to match the 
+     original versioning of the 
+	 non-transform formulas
+   - Add transformations using 
+     triplex R on the complex plane
+JIT_gnj_RiemPow2_05.m3f
+   Back to 3D tab as some params do need that
+_JIT_gnj_RiemPow2_04.m3f
+   Introducing Shift_CalcZBackward for backwards compatibility.
+   OLD:  z_norm := (cmp_x*cmp_x + cmp_y*cmp_y -1)*quot_xyz_back;
+   NEW:  z_norm := (cmp_x*cmp_x + cmp_y*cmp_y + Shift_CalcZBackward)*quot_xyz_back;
+_JIT_gnj_RiemPow2_03.m3f:
+  Moved to the Adds tabs which avoids odd effects on DE calculation 
+  Old formula name:   JIT_gnj_RiemannPower2_03.m3f
+ 
+VARIABLES:
+ - Shift_QuotCForward / Shift_QuotXYZForward / Shift_QuotBackward
+     They are controlling some quotients while transforming 
+     Riemann sphere <-> complex plane
+
+ - Shift_QuotCForward / Shift_QuotXYZForward:  
+     Especially values between 1 and -1 are interesting. There may be some weird regions
+     (if the quotient gets to close to 0), but there are also the largest effects.
+     
+ - Shift_QuotBackward
+     Most interesting values are between 1 and 0. 
+     Larger values can become boring (too regular surfaces).
+     Negative values can become mostly weird.
+
+ - NumComplexOps = Number of operations on complex plane. 
+     A larger number generates more details.
+     Currently only values from 1-3 are valid. 
+     NOTE that this should be an interger value. 
+          However v190 seams not to support integer values in the JIT
+
+ - SquaredRBackward:
+     0:  Only original R will be re-applied. Meant that is a pure transformation.
+     1:  Squared R gets used. In my current tests it results in more smooth surface.
+
+     No other values can be used.
+
+ - AddCAtEnd:
+     <>0:  
+      Add the original c after re-applying R. 
+      Together with SquaredRBackward=1 there may come up some basic fractal behavior.
+	  
+  - R_Mode, RC_Mode:
+      Apply triplex R/Rxy respective RC/RC_xy on the compex plane:
+	  0:  Do nothing
+	  1:  *R before complex ops, do nothing afterwards
+	  2:  *Rxy before complex ops, do nothing afterwards
+	  3:  /R before complex ops, do nothing afterwards
+	  4:  /Rxy before complex ops, do nothing afterwards
+	  5:  *R before complex ops, undo afterwards
+	  6:  *Rxy before complex ops, undo afterwards
+	  7:  /R before complex ops, undo afterwards
+	  8:  /Rxy before complex ops, undo afterwards
+
+------------------------------------------------------------------------------
+FORMULA:
+
+// calculating helper variables
+   sq_rc := cx*cx + cy*cy + cz*cz;
+   rc := sqrt(sq_rc);
+
+   sq_r := x*x + y*y + z*z;
+   r := sqrt(sq_r);
+   
+   rc_xy := sqrt(cx*cx + cy*cy);
+   r_xy := sqrt(x*x + y*y);
+
+// normalization
+
+   x_norm := x/r;
+   y_norm := y/r;
+   z_norm := z/r;
+
+   cx_norm := cx/r;
+   cy_norm := cy/r;
+   cz_norm := cz/r;
+
+// transform to complex
+
+   quot_xyz := 1/(Shift_QuotXYZForward-z_norm);
+   cmp_x := x_norm*quot_xyz;
+   cmp_y := y_norm*quot_xyz;
+   
+   quot_c := 1/(Shift_QuotCForward-cz_norm);
+   cmp_cx := cx_norm*quot_c;
+   cmp_cy := cy_norm*quot_c;
+
+// Forward modifications on complex z using original R
+
+   if R_mode = 1 then
+      begin
+        cmp_x := cmp_x*r;
+		cmp_y := cmp_y*r;
+      end
+	  
+   else if R_mode = 2 then
+	  begin
+        cmp_x := cmp_x*r_xy;
+		cmp_y := cmp_y*r_xy;
+      end
+     
+   else if R_mode = 3 then
+	  begin
+        cmp_x := cmp_x/r;
+		cmp_y := cmp_x/r;
+      end
+
+   else if R_mode = 4 then
+	  begin
+        cmp_x := cmp_x/r_xy;
+		cmp_y := cmp_x/r_xy;
+      end
+
+   else if R_mode = 5 then
+      begin
+        cmp_x := cmp_x*r;
+		cmp_y := cmp_y*r;
+      end
+	  
+   else if R_mode = 6 then
+	  begin
+        cmp_x := cmp_x*r_xy;
+		cmp_y := cmp_y*r_xy;
+      end
+     
+   else if R_mode = 7 then
+	  begin
+        cmp_x := cmp_x/r;
+		cmp_y := cmp_x/r;
+      end
+
+   else if R_mode = 8 then
+	  begin
+        cmp_x := cmp_x/r_xy;
+		cmp_y := cmp_x/r_xy;
+      end;
+
+// Forward modifications on complex c using original RC
+
+   if RC_mode = 1 then
+      begin
+        cmp_cx := cmp_cx*rc;
+		cmp_cy := cmp_cy*rc;
+      end
+	  
+   else if RC_mode = 2 then
+	  begin
+        cmp_cx := cmp_cx*rc_xy;
+		cmp_cy := cmp_cy*rc_xy;
+      end
+     
+   else if RC_mode = 3 then
+	  begin
+        cmp_cx := cmp_cx/rc;
+		cmp_cy := cmp_cx/rc;
+      end
+
+   else if RC_mode = 4 then
+	  begin
+        cmp_cx := cmp_cx/rc_xy;
+		cmp_cy := cmp_cx/rc_xy;
+      end
+
+   else if RC_mode = 5 then
+      begin
+        cmp_cx := cmp_cx*rc;
+		cmp_cy := cmp_cy*rc;
+      end
+	  
+   else if RC_mode = 6 then
+	  begin
+        cmp_cx := cmp_cx*rc_xy;
+		cmp_cy := cmp_cy*rc_xy;
+      end
+     
+   else if RC_mode = 7 then
+	  begin
+        cmp_cx := cmp_cx/rc;
+		cmp_cy := cmp_cx/rc;
+      end
+
+   else if RC_mode = 8 then
+	  begin
+        cmp_cx := cmp_cx/rc_xy;
+		cmp_cy := cmp_cx/rc_xy;
+      end;
+
+// complex calculation
+
+   cmp_xtmp := cmp_x*cmp_x - cmp_y*cmp_y + cmp_cx;
+   cmp_ytmp := 2*cmp_x*cmp_y + cmp_cy;
+   
+   cmp_x := cmp_xtmp;
+   cmp_y := cmp_ytmp;
+
+   If NumComplexOps >= 2 then
+
+     begin   
+       cmp_xtmp := cmp_x*cmp_x - cmp_y*cmp_y + cmp_cx;
+       cmp_ytmp := 2*cmp_x*cmp_y + cmp_cy;
+   
+       cmp_x := cmp_xtmp;
+       cmp_y := cmp_ytmp;
+     end;
+
+
+   If NumComplexOps >= 3 then
+
+     begin   
+       cmp_xtmp := cmp_x*cmp_x - cmp_y*cmp_y + cmp_cx;
+       cmp_ytmp := 2*cmp_x*cmp_y + cmp_cy;
+   
+       cmp_x := cmp_xtmp;
+       cmp_y := cmp_ytmp;
+     end;
+
+// Backwards modifications on complex z using original R
+
+   if R_mode = 5 then
+      begin
+        cmp_x := cmp_x/r;
+		cmp_y := cmp_y/r;
+      end
+	  
+   else if R_mode = 6 then
+	  begin
+        cmp_x := cmp_x/r_xy;
+		cmp_y := cmp_y/r_xy;
+      end
+     
+   else if R_mode = 7 then
+	  begin
+        cmp_x := cmp_x*r;
+		cmp_y := cmp_x*r;
+      end
+
+   else if R_mode = 8 then
+	  begin
+        cmp_x := cmp_x*r_xy;
+		cmp_y := cmp_x*r_xy;
+      end;
+
+// Backwards modifications on complex c using original RC
+
+   if RC_mode = 5 then
+      begin
+        cmp_cx := cmp_cx/rc;
+		cmp_cy := cmp_cy/rc;
+      end
+	  
+   else if RC_mode = 6 then
+	  begin
+        cmp_cx := cmp_cx/rc_xy;
+		cmp_cy := cmp_cy/rc_xy;
+      end
+     
+   else if RC_mode = 7 then
+	  begin
+        cmp_cx := cmp_cx*rc;
+		cmp_cy := cmp_cx*rc;
+      end
+
+   else if RC_mode = 8 then
+	  begin
+        cmp_cx := cmp_cx*rc_xy;
+		cmp_cy := cmp_cx*rc_xy;
+      end;
+
+// transform back to sphere / triplex;
+
+   quot_xyz_back := 1/(Shift_QuotBackward + cmp_x*cmp_x + cmp_y*cmp_y); 
+
+   x_norm := 2*cmp_x*quot_xyz_back;
+   y_norm := 2*cmp_y*quot_xyz_back;
+   z_norm := (cmp_x*cmp_x + cmp_y*cmp_y + Shift_CalcZBackward)*quot_xyz_back;
+
+// de-nomalization
+
+   If SquaredRBackward = 1 then
+     begin
+       //  NOTE:  The use of sq_r is mathematical useless; however in any 
+       //         other case there's not enough dynamic
+       x := x_norm * sq_r + AddCAtEnd*cx;
+       y := y_norm * sq_r + AddCAtEnd*cy;
+       z := z_norm * sq_r + AddCAtEnd*cz;
+     end
+   else
+     begin     
+       x := x_norm * r + AddCAtEnd*cx;
+       y := y_norm * r + AddCAtEnd*cy;
+       z := z_norm * r + AddCAtEnd*cz;
+     end;
