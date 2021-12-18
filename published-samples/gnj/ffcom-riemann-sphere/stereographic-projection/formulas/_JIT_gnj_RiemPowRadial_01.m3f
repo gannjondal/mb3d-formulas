@@ -1,0 +1,364 @@
+[OPTIONS]
+.DEOption = -1
+.DEScale = 1
+.SIPow = 2
+.Version = 9
+.Double AddCAtEnd = 0
+.Double Complex_C_Factor = 1
+.Double Complex_C_Rotate = 0
+.Double Complex_Z_Power = 2
+.Double Complex_Z_Rotate = 0
+.Double NumComplexOps = 1
+.Double Shift_QuotBackward = 1
+.Double Shift_QuotCForward = 1
+.Double Shift_QuotXYZForward = 1
+.Double SquaredRBackward = 0
+[SOURCE]
+procedure MyFormula(var x, y, z, w: Double; PIteration3D: TPIteration3D);
+
+var
+   cx, cy, cz: double;
+   rc, sq_rc: double;
+   cx_norm, cy_norm, cz_norm: double;
+
+
+   r, sq_r: double;
+   x_norm, y_norm, z_norm: double;
+   quot_xyz, quot_c, quot_xyz_back: double;
+
+   cmp_x, cmp_y: double;
+   cmp_cx, cmp_cy: double;
+
+   cmp_r, cmp_phi: double;
+   cmp_cr, cmp_cphi: double;
+
+   rotc_rad, rotz_rad: double;
+
+begin
+   cx := PIteration3D^.J1;
+   cy := PIteration3D^.J2;
+   cz := PIteration3D^.J3;
+
+// Transform custom rotation params degrees -> radiant
+
+   rotc_rad := DegToRad(Complex_C_Rotate);
+   rotz_rad := DegToRad(Complex_Z_Rotate);
+
+// calculating helper variables
+   sq_rc := cx*cx + cy*cy + cz*cz;
+   rc := sqrt(sq_rc);
+
+   sq_r := x*x + y*y + z*z;
+   r := sqrt(sq_r);
+
+// normalization
+
+   x_norm := x/r;
+   y_norm := y/r;
+   z_norm := z/r;
+
+   cx_norm := cx/r;
+   cy_norm := cy/r;
+   cz_norm := cz/r;
+
+// transform to complex
+
+   quot_xyz := 1/(Shift_QuotXYZForward-z_norm);
+   cmp_x := x_norm*quot_xyz;
+   cmp_y := y_norm*quot_xyz;
+
+   quot_c := 1/(Shift_QuotCForward-cz_norm);
+   cmp_cx := cx_norm*quot_c;
+   cmp_cy := cy_norm*quot_c;
+
+
+// transform c to radial coordinates, do operations
+// and transform back (just once)
+
+   cmp_cphi := arctan2(cmp_cy, cmp_cx);
+   cmp_cr := sqrt(cmp_cx*cmp_cx + cmp_cy*cmp_cy);
+
+   cmp_cphi := cmp_cphi + rotc_rad;
+   cmp_cr := Complex_C_Factor * cmp_cr;
+
+   Sincos(cmp_cphi, cmp_cx, cmp_cy);
+   cmp_cx := cmp_cx * cmp_cr;
+   cmp_cy := cmp_cy * cmp_cr;
+
+// transform z to radial coordinates
+
+   cmp_phi := arctan2(cmp_y, cmp_x);
+   cmp_r := sqrt(cmp_x*cmp_x + cmp_y*cmp_y);
+
+// complex radial calculation
+
+   cmp_phi := Complex_Z_Power*cmp_phi + rotz_rad;
+   cmp_r :=  Power(cmp_r, Complex_Z_Power);
+
+// transform back to cartesian coordinates
+
+   Sincos(cmp_phi, cmp_x, cmp_y);
+   cmp_x := cmp_x * cmp_r;
+   cmp_y := cmp_y * cmp_r;
+
+// add c
+
+   cmp_x := cmp_x + cmp_cx;
+   cmp_y := cmp_y + cmp_cy;
+
+   If NumComplexOps >= 2 then
+     begin
+       cmp_phi := arctan2(cmp_y, cmp_x);
+       cmp_r := sqrt(cmp_x*cmp_x + cmp_y*cmp_y);
+
+       cmp_phi := cmp_phi + rotz_rad;
+       cmp_r :=  Power(cmp_r, Complex_Z_Power);
+
+       Sincos(cmp_phi, cmp_x, cmp_y);
+       cmp_x := cmp_x * cmp_r;
+       cmp_y := cmp_y * cmp_r;
+
+       cmp_x := cmp_x + cmp_cx;
+       cmp_y := cmp_y + cmp_cy;
+     end;
+
+   If NumComplexOps >= 3 then
+     begin
+       cmp_phi := arctan2(cmp_y, cmp_x);
+       cmp_r := sqrt(cmp_x*cmp_x + cmp_y*cmp_y);
+
+       cmp_phi := cmp_phi + rotz_rad;
+       cmp_r :=  Power(cmp_r, Complex_Z_Power);
+
+       Sincos(cmp_phi, cmp_x, cmp_y);
+       cmp_x := cmp_x * cmp_r;
+       cmp_y := cmp_y * cmp_r;
+
+       cmp_x := cmp_x + cmp_cx;
+       cmp_y := cmp_y + cmp_cy;
+     end;
+
+// transform back to sphere / triplex;
+
+   quot_xyz_back := 1/(Shift_QuotBackward + cmp_x*cmp_x + cmp_y*cmp_y);
+
+   x_norm := 2*cmp_x*quot_xyz_back;
+   y_norm := 2*cmp_y*quot_xyz_back;
+   z_norm := (cmp_x*cmp_x + cmp_y*cmp_y - 1)*quot_xyz_back;
+
+// de-nomalization
+
+   If SquaredRBackward = 1 then
+     begin
+       //  NOTE:  The use of sq_r is mathematical useless; however in any
+       //         other case there's not enough dynamic
+       x := x_norm * sq_r + AddCAtEnd*cx;
+       y := y_norm * sq_r + AddCAtEnd*cy;
+       z := z_norm * sq_r + AddCAtEnd*cz;
+     end
+   else
+     begin
+       x := x_norm * r + AddCAtEnd*cx;
+       y := y_norm * r + AddCAtEnd*cy;
+       z := z_norm * r + AddCAtEnd*cz;
+     end;
+
+end;
+[END]
+SUMMARY:
+  What this formula does is to
+  1. map a triplex number as a Riemann sphere
+     (i.e. divide all coordinates by R)
+  2. transform it to the complex plane (cartesian coordinates)
+  3. transform cartesian to radial coordinates
+  4. do some operation in complex plane:
+       z(n+1) := z(n)^Complex_Z_Power,
+       do some rotation of the angle component
+  5. transform it back to cartesian coordinates
+       add the complex c
+  6. repeat 4.+5. NumComplexOps times 	
+  7. transform the number back to a Riemans sphere
+  8. re-apply R
+
+NOTE:
+ By standard the value of the triplex number will not be changed.
+ Therefore this is a transformation rather than independent formula.
+ This is one of the reasons that I have marked it as _Add
+ (the other one is because it improves the DE calculation)
+
+VARIABLES:
+ - Shift_QuotCForward / Shift_QuotXYZForward / Shift_QuotBackward
+     They are controlling some quotients while transforming
+     Riemann sphere <-> complex plane
+
+   Shift_QuotCForward / Shift_QuotXYZForward:
+     Especially values between 1 and -1 are interesting. There may be some weird regions
+     (if the quotient gets to close to 0), but there are also the largest effects.
+
+   Shift_QuotBackward
+     Most interesting values are between 1 and 0.
+     Larger values can become boring (too regular surfaces).
+     Negative values can become mostly weird.
+ 
+ - Complex_C_Factor/ Complex_C_Rotate / Complex_Z_Power / Complex_Z_Rotate:
+ 
+     The *_Rotate params are in degrees.
+
+   One complex operation looks like:
+   1. z(n+1) =
+      {  
+        r(n+1) = r(n)^Complex_Z_Power
+        phi(n+1) = phi(n) * Complex_Z_Power + Complex_Z_Rotate
+	  }
+   2. z(n+1) = z(n) + c , where 
+      c =  
+      {
+	    r(c) = r(c) * Complex_C_Factor
+		phi(c) = phi(c) + Complex_C_Rotate
+	  } 
+	  applied once.
+ 
+ - NumComplexOps = Number of operations on complex plane.
+     A larger number generates more details.
+     Currently only values from 1-3 are valid.
+     NOTE that this should be an interger value.
+          However v190 seams not to support integer values in the JIT
+
+ - SquaredRBackward:
+     0:  Only original R will be re-applied. Meant that is a pure transformation.
+     1:  Squared R gets used. In my current tests it results in more smooth surface.
+
+     No other values can be used.
+
+ - AddCAtEnd:
+     <>0:
+      Add the original c after re-applying R.
+      Together with SquaredRBackward=1 there may come up some basic fractal behavior.
+
+------------------------------------------------------------------------------
+FORMULA:
+// Transform custom rotation params degrees -> radiant
+
+   rotc_rad := DegToRad(Complex_C_Rotate);
+   rotz_rad := DegToRad(Complex_Z_Rotate);
+
+// calculating helper variables
+   sq_rc := cx*cx + cy*cy + cz*cz;
+   rc := sqrt(sq_rc);
+
+   sq_r := x*x + y*y + z*z;
+   r := sqrt(sq_r);
+
+// normalization
+
+   x_norm := x/r;
+   y_norm := y/r;
+   z_norm := z/r;
+
+   cx_norm := cx/r;
+   cy_norm := cy/r;
+   cz_norm := cz/r;
+
+// transform to complex
+
+   quot_xyz := 1/(Shift_QuotXYZForward-z_norm);
+   cmp_x := x_norm*quot_xyz;
+   cmp_y := y_norm*quot_xyz;
+
+   quot_c := 1/(Shift_QuotCForward-cz_norm);
+   cmp_cx := cx_norm*quot_c;
+   cmp_cy := cy_norm*quot_c;
+
+
+// transform c to radial coordinates, do operations
+// and transform back (just once)
+
+   cmp_cphi := arctan2(cmp_cy, cmp_cx);
+   cmp_cr := sqrt(cmp_cx*cmp_cx + cmp_cy*cmp_cy);
+
+   cmp_cphi := cmp_cphi + rotc_rad;
+   cmp_cr := Complex_C_Factor * cmp_cr;
+
+   Sincos(cmp_cphi, cmp_cx, cmp_cy);
+   cmp_cx := cmp_cx * cmp_cr;
+   cmp_cy := cmp_cy * cmp_cr;
+
+// transform z to radial coordinates
+
+   cmp_phi := arctan2(cmp_y, cmp_x);
+   cmp_r := sqrt(cmp_x*cmp_x + cmp_y*cmp_y);
+
+// complex radial calculation
+
+   cmp_phi := Complex_Z_Power*cmp_phi + rotz_rad;
+   cmp_r :=  Power(cmp_r, Complex_Z_Power);
+
+// transform back to cartesian coordinates
+
+   Sincos(cmp_phi, cmp_x, cmp_y);
+   cmp_x := cmp_x * cmp_r;
+   cmp_y := cmp_y * cmp_r;
+
+// add c
+
+   cmp_x := cmp_x + cmp_cx;
+   cmp_y := cmp_y + cmp_cy;
+
+   If NumComplexOps >= 2 then
+     begin
+       cmp_phi := arctan2(cmp_y, cmp_x);
+       cmp_r := sqrt(cmp_x*cmp_x + cmp_y*cmp_y);
+
+       cmp_phi := cmp_phi + rotz_rad;
+       cmp_r :=  Power(cmp_r, Complex_Z_Power);
+
+       Sincos(cmp_phi, cmp_x, cmp_y);
+       cmp_x := cmp_x * cmp_r;
+       cmp_y := cmp_y * cmp_r;
+
+       cmp_x := cmp_x + cmp_cx;
+       cmp_y := cmp_y + cmp_cy;
+     end;
+
+   If NumComplexOps >= 3 then
+     begin
+       cmp_phi := arctan2(cmp_y, cmp_x);
+       cmp_r := sqrt(cmp_x*cmp_x + cmp_y*cmp_y);
+
+       cmp_phi := cmp_phi + rotz_rad;
+       cmp_r :=  Power(cmp_r, Complex_Z_Power);
+
+       Sincos(cmp_phi, cmp_x, cmp_y);
+       cmp_x := cmp_x * cmp_r;
+       cmp_y := cmp_y * cmp_r;
+
+       cmp_x := cmp_x + cmp_cx;
+       cmp_y := cmp_y + cmp_cy;
+     end;
+
+// transform back to sphere / triplex;
+
+   quot_xyz_back := 1/(Shift_QuotBackward + cmp_x*cmp_x + cmp_y*cmp_y);
+
+   x_norm := 2*cmp_x*quot_xyz_back;
+   y_norm := 2*cmp_y*quot_xyz_back;
+   z_norm := (cmp_x*cmp_x + cmp_y*cmp_y - 1)*quot_xyz_back;
+
+// de-nomalization
+
+   If SquaredRBackward = 1 then
+     begin
+       //  NOTE:  The use of sq_r is mathematical useless; however in any
+       //         other case there's not enough dynamic
+       x := x_norm * sq_r + AddCAtEnd*cx;
+       y := y_norm * sq_r + AddCAtEnd*cy;
+       z := z_norm * sq_r + AddCAtEnd*cz;
+     end
+   else
+     begin
+       x := x_norm * r + AddCAtEnd*cx;
+       y := y_norm * r + AddCAtEnd*cy;
+       z := z_norm * r + AddCAtEnd*cz;
+     end;
+
+end;
