@@ -14,4 +14,6 @@ You can find some more examples at https://www.fractalforums.com/mandelbulb-3d/a
   Implements variant 1.   
   The above mentioned complex operation is a calculation of the old 2D Mandelbrot (just up to 3 iterations due to the limitation of JIT).   
   You can find details, and param description within the formula.   
-  ![Sample image:] (./RiemPower2Sample.jpg)   
+
+  Sample image:   
+  ![Sample image\:](./RiemPower2Sample.jpg)   
