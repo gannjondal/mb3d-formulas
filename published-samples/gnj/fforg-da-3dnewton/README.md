@@ -8,4 +8,5 @@
 - dA - Gallery `Terra Newtonia` (images; some with params):   
   https://www.deviantart.com/gannjondal/gallery/77446093/terra-newtonia   
       
-The files here are added without a specific structure as they are very scattered over the above pages.
+The files here are added without a specific structure in [formulas-all](./formulas-all/) as they are very scattered over the above pages.   
+The folder [cs3b-overview](./cs3b-overview) contains a showcase of one specific Newton 3D formula.   
