@@ -10,21 +10,31 @@ For compatibility to older examples in dA, and ff.org all older formulas are ava
    https://www.deviantart.com/gannjondal/gallery/77446093/terra-newtonia   
    
 ## Formula naming:   
-- `JIT` is the mandatory prefix for JIT formulas   
-- `gnj` is my 3-digit identifier (for `gannjondal`)   
+- `JIT` is the mandatory prefix for JIT formulas.   
+- `gnj` is my 3-digit identifier (for `gannjondal`). Other developers may introduce their own acronyms.   
 - `RealPowNewt` = (3D) Newton fractal formula using triplex numbers, and a free power parameter of type floating point   
 - `Pow3Newton` = (3D) Newton fractal formula using triplex numbers for z^`3` ONLY which uses cartesian coordinates.   
-   Hence it avoids sin/cos/atan/power etc, and should hence be faster than the RealPow versions.   
-- `_01, _02 etc` The logic behind fractal formulas makes it not that easy (well, for me) to ensure backward compatibility.   
-   I will try to keep an eye to that topic in future, so that there will not be too many of those \_xy variants.   
-   Also there is not (and will not be) any formula packages that may have an own versioning.   
-   Finally MB3D requires relatively short formula names (something like <24 characters; I don't recall the exact value) only, so that it's not possible to have something like subversioning like \_01_01 in the most cases.   
-   Hence please consider that you may not be able to use a \_02 variant within params originally written with a \_01 of the same type   
-- `E` stands for "easy to use":  It is for z^n-`1`=0 only, and uses `1` as the one-and-only fix solution.   
-  There will be versions with a configurable solution parameter (good for pre-transformations only) published later.   
-- `C` stands for "correct multiplication of c".   
+   Hence it avoids sin/cos/atan/power etc, and should hence be faster than the RealPow versions.     
+   
+**One-character identifiers:**   
+- `E` stands for _easy to use_:  It is for z^n-`1`=0 only, and uses `1` as the one-and-only fix solution.   
+- `P` stands for _pretransform_:  The formula _can_ be used as stand-alone formula.   
+   However different values of a solution of the Newton-Raphson method, as well as the `c` in `z^n+c` don't introduce anything new (at least not without much on effort), and makes configuration difficult.   
+   Nevertheless the older varaiants that allow these settings are still useful mainly as pretransforms:  The combination of inversion, and power allow to introduce great variations of distortions.     
+- `C` stands for _correct multiplication of c_:   
   In earlier versions of MB3D JIT formulas I did not take the effort to correctly multiply c.   
-     
+    
+**Numbering/Versioning:**     
+- `_##`:  The number at the end is just the version:   
+  The logic behind fractal formulas makes it not that easy (well, for me) to ensure backward compatibility.   
+  Therefore it's most useful to keep old versions somehow, other than usual in software development.   
+  Also there is not (and will not be) any formula packages that may have an own versioning.   
+  Finally MB3D requires relatively short formula names (something like <24 characters; I don't recall the exact value) only, so that it's not possible to have something like subversioning like \_01_01 in the most cases.   
+  Hence please consider that you may not be able to use a \_02 variant within params originally written with a \_01 of the same type.   
+  
+  I will try to keep an eye to that topic in future, so that there will not be too many of those \_xy variants.   
+  If someone should find development rules, and best bractices on how to guarantee backwards compatibility in JIT development I would be happy to take them into account.    
+        
 ## Documentation:   
 The param description has been over from the formula doc of gnj_RealPowNewtE_01.m3f - the variables in other formulas do slightly differ - please check the individual formulas for details, although I may improve the documentation for some older formulas later (well, I hope)...   
    
