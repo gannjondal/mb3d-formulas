@@ -19,11 +19,11 @@ For compatibility to older examples in dA, and ff.org all older formulas are ava
    Finally MB3D requires relatively short formula names (something like <24 characters; I don't recall exactly) only, so that it's not possible to have something like subversioning like \_01_01 in the most cases.   
    Hence please consider that you may not be able to use a \_02 variant within params originally written with a \_01 of the same type   
 - `E` stands for "easy to use":  It is for z^n-`1`=0 only, and uses `1` as the one-and-only fix solution.   
-  There will be versions with a configurable solution parameter (good for pre-transformations only) published later.   
+  **Start with Julia = 0/0/0 for a clean Newton bulb**   
+  There may be 'P' versions with a configurable solution parameter (good for pre-transformations only) published later.   
 - `C` stands for "correct multiplication of c".   
   In earlier versions of MB3D JIT formulas I did not take the effort to correctly multiply c.   
-  As there is no older version for MB2 this is for compatibility across the several fractal programs.   
-   
+     
 ## Documentation:   
 The param description has been over from the formula doc of JIT_gnj_QuatPowNNewtE_01.m3f - the variables in other formulas do slightly differ - please check the individual formulas for details, although I may improve the documentation for some older formulas later (well, I hope)...   
    
@@ -78,11 +78,14 @@ COMMENTS, EXPLANATIONS:
    
   - Explanation of the "trick".   
     It was necessary to keep the following conditions in mind:   
-    + The common DE mechanisms of MB2, and MB3D need a DIVERGENT iteration value (here z)   
-    + It is of course necessary to have a variable (here q) that is used for the actual Newton iteration   
+    + First of all: To get a useful 3D image it is necessary to define an 'inside', and an 'outside' region   
+    + The common DE mechanisms of MB2, and MB3D need a DIVERGENT iteration value (here z)    
+    + It is of course necessary to have a variable (here q) that is used for the actual Newton iteration    
     + In MB3D (and maybe also in MB2) it is not possible to keep another triplex value than z between the iterations.   
    
-    Therefore it is necessary to have a z that diverges AND it must be possible to always calculate q from z uniquely (mathematically: There must be a one-to-one relation between q, and z).   
+    Therefore it is necessary to have a z that diverges - AND it must be possible to always calculate q from z uniquely (mathematically: There must be a one-to-one relation between q, and z).   
+     Furthermore I decided that the area that converges to one specific value (below 'solution') is taken as 'outside'. The other areas are 'inside'.     
+     Of course that way you see only the outer surface of the 'inside' area, but it turned out that with some tweaks it's possible to see ... more of the transition area.
    
     Below algorithm fullfills all above conditions - Each iteration looks like:   
     a)  Extract q[n] as q[n] = 1/z[n] + solution   
