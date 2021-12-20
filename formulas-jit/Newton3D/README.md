@@ -18,6 +18,7 @@ For compatibility to older examples in dA, and ff.org all older formulas are ava
    
 **One-character identifiers:**   
 - `E` stands for _easy to use_:  It is for z^n-`1`=0 only, and uses `1` as the one-and-only fix solution.   
+  **Start with Julia = 0/0/0 for a clean Newton bulb**  
 - `P` stands for _pretransform_:  The formula _can_ be used as stand-alone formula.   
    However different values of a solution of the Newton-Raphson method, as well as the `c` in `z^n+c` don't introduce anything new (at least not without much on effort), and makes configuration difficult.   
    Nevertheless the older varaiants that allow these settings are still useful mainly as pretransforms:  The combination of inversion, and power allow to introduce great variations of distortions.     
@@ -91,11 +92,14 @@ COMMENTS, EXPLANATIONS:
    
   - Explanation of the "trick".   
     It was necessary to keep the following conditions in mind:   
-    + The common DE mechanisms of MB2, and MB3D need a DIVERGENT iteration value (here z)   
-    + It is of course necessary to have a variable (here q) that is used for the actual Newton iteration   
+    + First of all: To get a useful 3D image it is necessary to define an 'inside', and an 'outside' region   
+    + The common DE mechanisms of MB2, and MB3D need a DIVERGENT iteration value (here z)    
+    + It is of course necessary to have a variable (here q) that is used for the actual Newton iteration    
     + In MB3D (and maybe also in MB2) it is not possible to keep another triplex value than z between the iterations.   
    
-    Therefore it is necessary to have a z that diverges AND it must be possible to always calculate q from z uniquely (mathematically: There must be a one-to-one relation between q, and z).   
+    Therefore it is necessary to have a z that diverges - AND it must be possible to always calculate q from z uniquely (mathematically: There must be a one-to-one relation between q, and z).   
+     Furthermore I decided that the area that converges to one specific value (below 'solution') is taken as 'outside'. The other areas are 'inside'.     
+     Of course that way you see only the outer surface of the 'inside' area, but it turned out that with some tweaks it's possible to see ... more of the transition area.
    
     Below algorithm fullfills all above conditions - Each iteration looks like:   
     a)  Extract q[n] as q[n] = 1/z[n] + solution   
