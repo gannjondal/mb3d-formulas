@@ -3,11 +3,11 @@
 .RStop = 16
 .SIPow = 2
 .Version = 9
-.Double Scale_before = 1
-.Double Scale_post = 1
-.Double Shift_x = 0
-.Double Shift_y = 0
-.Double Shift_z = 0
+.Double Fake_Bailout = 1
+.Double Fake_Bailout2 = 1
+.Double Trans_x = 0
+.Double Trans_y = 0
+.Double Trans_z = 0
 
 [CONSTANTS]
 // Formula simplification:
@@ -41,13 +41,13 @@ begin
    cy := PIteration3D^.J2;
    cz := PIteration3D^.J3;
 
-   x := x + Shift_x;
-   y := y + Shift_y;
-   z := z + Shift_z;
+   x := x + Trans_x;
+   y := y + Trans_y;
+   z := z + Trans_z;
 
 // Converting the diverging (x,y,z) back to the variable
 // that can be used for the (converging) Newton method calculation
-   sq_r := Scale_before/(x*x + y*y + z*z + Offset);
+   sq_r := Fake_Bailout/(x*x + y*y + z*z + Offset);
    x := x*sq_r + Solution_x;
    y := -y*sq_r + Solution_y;
    z := -z*sq_r + Solution_z;
@@ -98,10 +98,10 @@ begin
 // Formula simplification:
 // Added the Julia/Mandelbrot constant cx/cy/cz
 // at this point according mclarekin's idea
-   sq_r := Scale_post/(diffx*diffx + diffy*diffy + diffz*diffz + Offset);
-   x := diffx*sq_r + cx - Shift_x;
-   y := -diffy*sq_r + cy - Shift_y;
-   z := -diffz*sq_r + cz - Shift_z;
+   sq_r := Fake_Bailout2/(diffx*diffx + diffy*diffy + diffz*diffz + Offset);
+   x := diffx*sq_r + cx - Trans_x;
+   y := -diffy*sq_r + cy - Trans_y;
+   z := -diffz*sq_r + cz - Trans_z;
 
 end;
 [END]
@@ -116,14 +116,15 @@ CHANGES:
  Basis:  JIT_gnj_RealPowNewtonS_1.m3f
 
  JIT_gnj_Pow3NewtonE_01.m3f:
- - Renamed to follow the updated naming
+ - Renamed the file to follow the updated
+   formula naming pattern
  - Changed code so that calculation is
    made for z^3-1=0 only (instead z^3+c=0)
  - Added Shift params for x, y, and z
- - Splitted Scale params
-   (former name: Fake_Bailout) in values
-   for before, and after the
-   Newton calculations
+   (Trans_x/y/z)
+ - Splitted Scale params (Fake_Bailout*)
+   into values for before, and after 
+   the Newton calculations
  - Changed the meaning of the 
    Julia/Mandelbrot params 
    (Before: the c of z^3+c=0; 
@@ -152,21 +153,21 @@ CHANGES:
    multiplication with c)
  
 PARAMETERS:
- Scale_before / _post:
+ Fake_Bailout / _post:
    Default = 1
    Scale the calculation of the 
    squared value used for inversion.
    
-   As the names intimate Scale_before
-   is applied before Newton calculation,
+   Fake_Bailout is applied before
+   the Newton calculation,
    and the other param afterwards.
    
-   Please keep in mind that Scale_before
+   Please keep in mind that Fake_Bailout
    enlarges the object while the same
-   value at Scale_post does reduces it
+   value at Fake_Bailout2 does reduces it
    (for the same factor)
    
-  Shift_x/y/z:
+  Trans_x/y/z:
     Parameter to set translation (forth and back) 
 
 FORMULA:
@@ -175,13 +176,13 @@ FORMULA:
    cy := PIteration3D^.J2;
    cz := PIteration3D^.J3;
 
-   x := x + Shift_x;
-   y := y + Shift_y;
-   z := z + Shift_z;
+   x := x + Trans_x;
+   y := y + Trans_y;
+   z := z + Trans_z;
 
 // Converting the diverging (x,y,z) back to the variable
 // that can be used for the (converging) Newton method calculation
-   sq_r := Scale_before/(x*x + y*y + z*z + Offset);
+   sq_r := Fake_Bailout/(x*x + y*y + z*z + Offset);
    x := x*sq_r + Solution_x;
    y := -y*sq_r + Solution_y;
    z := -z*sq_r + Solution_z;
@@ -212,8 +213,7 @@ FORMULA:
    diffy := (y - Solution_y);
    diffz := (z - Solution_z);
 
-   sq_r := Scale_post/(diffx*diffx + diffy*diffy + diffz*diffz + Offset);
-   x := diffx*sq_r + cx - Shift_x;
-   y := -diffy*sq_r + cy - Shift_y;
-   z := -diffz*sq_r + cz - Shift_z;
-
+   sq_r := Fake_Bailout2/(diffx*diffx + diffy*diffy + diffz*diffz + Offset);
+   x := diffx*sq_r + cx - Trans_x;
+   y := -diffy*sq_r + cy - Trans_y;
+   z := -diffz*sq_r + cz - Trans_z;
