@@ -51,8 +51,11 @@ begin
    y := y + Trans_y;
    z := z + Trans_z;
    
-// Converting the diverging (x,y,z) back to the variable
-// that can be used for the (converging) Newton method calculation
+// MB3D needs a potentially diverging value of tripex t=(x,y,z) to work correctly.
+// However the Newton method for t^power-c is so far always converging.
+// Fortunately there is a one-to-one relation between these values.
+// Below the t from MB3D is transformed 
+// to the t used for the Newton calculations
    sq_r := Fake_Bailout/(x*x + y*y + z*z + Offset);
    x := x*sq_r + Solution_x;
    y := Inversion_Factor*y*sq_r + Solution_y;
@@ -80,23 +83,32 @@ begin
    tmpy := cph*sth*r_norm;
    tmpz := -sph*r_norm;
 
-//Multiply c and 1/(power*t(n)^(power-1))
-//   rcxy := sqrt(cx*cx + cy*cy);
-//   rzxy := sqrt(tmpx*tmpx + tmpy*tmpy);
-   
-//   h := 1.0 - cz*tmpz/(rcxy*rzxy);
-   
-//   tmpx := (cx*tmpx - cy*tmpy)*h;
-//   tmpy := (cy*tmpx + cx*tmpy)*h;
-//   tmpz := (rcxy*tmpz + rzxy*cz);
+// Formula simplification:
+    // Commented out the multiplication of c with 1/(power*t(n)^(power-1)) -- 
+    // so that we don't calculate the solution for t^power+c=0 anymore, 
+    // but for t^power-1=0
+
+    //   rcxy := sqrt(cx*cx + cy*cy);
+    //   rzxy := sqrt(tmpx*tmpx + tmpy*tmpy);
+       
+    //   h := 1.0 - cz*tmpz/(rcxy*rzxy);
+       
+    //   tmpx := (cx*tmpx - cy*tmpy)*h;
+    //   tmpy := (cy*tmpx + cx*tmpy)*h;
+    //   tmpz := (rcxy*tmpz + rzxy*cz);
 
 //Bring everything together
+// Formula simplification:
+// changed ...-tmpx, and ...-tmpy
+// to ...+tmpx, and ...+tmpy
+// to really search for t^power-1=0 (and not for any other constant)
    x := fac_eff*x + tmpx;
    y := fac_eff*y + tmpy;
    z := fac_eff*z - tmpz;
 
-// Below the hack that provides a divergent value of (x,y,z) to MB3D
-// although the plain Newton method does always converge
+// Below the z used for (converging) Newton calculation 
+// is transformed back to the potentially diverging z used by MB3D
+// (see also the notes above)
    diffx := (x-Solution_x);
    diffy := (y-Solution_y);
    diffz := (z-Solution_z);
